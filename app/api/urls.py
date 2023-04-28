@@ -5,6 +5,11 @@ from api import views
 
 router = DefaultRouter()
 router.register('resources', views.ResourceViewSet)
+router.register('character', views.CharacterViewSet)
+router.register('item', views.ItemViewSet)
+router.register('equipment', views.CharacterItemViewSet)
+router.register('useritems', views.UserItemViewSet)
+router.register('enemies', views.EnemyViewSet)
 
 app_name = 'api'
 
