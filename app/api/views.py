@@ -54,3 +54,37 @@ class ManageUserView(generics.RetrieveUpdateAPIView):
 
     def get_object(self):
         return self.request.user
+    
+
+class CharacterViewSet(BaseViewSet):
+    serializer_class = serializers.CharacterSerializer
+    queryset = models.Character.objects.all()
+
+    def get_queryset(self):
+        return models.Character.objects.filter(user=self.request.user)
+
+
+class ItemViewSet(BaseViewSet):
+    serializer_class = serializers.ItemSerializer
+    queryset = models.Character.objects.all()
+
+
+class CharacterItemViewSet(BaseViewSet):
+    serializer_class = serializers.CharacterItemSerializer
+    queryset = models.CharacterItem.objects.all()
+
+    def get_queryset(self):
+        return models.CharacterItem.objects.filter(character=self.request.character)
+
+
+class UserItemViewSet(BaseViewSet):
+    serializer_class = serializers.UserItemsSerializer
+    queryset = models.UserItems.objects.all()
+
+    def get_queryset(self):
+        return models.UserItems.objects.filter(user=self.request.user)
+
+
+class EnemyViewSet(BaseViewSet):
+    serializer_class = serializers.EnemySerializer
+    queryset = models.Enemy.objects.all()
