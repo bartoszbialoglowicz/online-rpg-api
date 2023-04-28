@@ -76,4 +76,33 @@ class ResourcesSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Resources
         fields = '__all__'
-    
+
+
+class CharacterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Character
+        fields = '__all__'
+
+
+class ItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Item
+        fields = '__all__'
+
+
+class CharacterItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.CharacterItem
+        fields = '__all__'
+
+
+class UserItemsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.UserItems
+        fields = '__all__'
+
+
+class EnemySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Enemy
+        fields = '__all__'
