@@ -1,11 +1,24 @@
+import sys
 from django.db import models
+from rest_framework.exceptions import ValidationError
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.contrib.auth.models import BaseUserManager
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, m2m_changed
 from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+
+
+ITEM_TYPES = [
+    ('helmet', 'helmet'),
+    ('armor', 'armor'),
+    ('gloves', 'gloves'),
+    ('boots', 'boots'),
+    ('trousers', 'trousers'),
+    ('weapon', 'weapon')
+]
+
 
 class CustomUserManager(BaseUserManager):
 
@@ -56,6 +69,9 @@ class Resources(models.Model):
     lvl = models.IntegerField(default=1)
     exp = models.IntegerField(default=0)
 
+    def __str__(self):
+        return str(self.user.name)
+
     @receiver(post_save, sender=get_user_model())
     def create_resource(sender, instance, created, **kwargs):
         if created:
@@ -65,9 +81,12 @@ class Resources(models.Model):
 class Character(models.Model):
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     armor = models.IntegerField(default=0)
-    magic_resist = models.IntegerField(default=0)
-    health = models.IntegerField(default=0)
-    damage = models.IntegerField(default=0)
+    magicResist = models.IntegerField(default=0)
+    health = models.IntegerField(default=100)
+    damage = models.IntegerField(default=10)
+
+    def __str__(self):
+        return str(self.user.name)
 
     @receiver(post_save, sender=get_user_model())
     def create_character(sender, instance, created, **kwargs):
@@ -77,79 +96,21 @@ class Character(models.Model):
 
 class Item(models.Model):
     name = models.CharField(max_length=100)
-    weapon_type = models.BooleanField(default=False) # True if weapon, False if armor
+    itemType = models.CharField(max_length=100, null=True, choices=ITEM_TYPES)
     armor = models.IntegerField(default=0)
-    magic_resist = models.IntegerField(default=0)
+    magicResist = models.IntegerField(default=0)
     health = models.IntegerField(default=0)
     damage = models.IntegerField(default=0)
 
-
-class CharacterItem(models.Model):
-    """Model for items already equiped by character"""
-    character = models.ForeignKey(Character, on_delete=models.CASCADE)
-    item = models.ForeignKey(Item, on_delete=models.CASCADE, null=True)
-
-    def unequip_item(character: Character, item: Item):
-        if item.weapon_type: # If it's a weapon
-            character.weapon = None
-            character.damage -= item.damage
-        else: # If it's armor
-            if item.armor_type == 'helmet':
-                character.helmet = None
-            elif item.armor_type == 'armor':
-                character.armor = None
-            elif item.armor_type == 'boots':
-                character.boots = None
-            elif item.armor_type == 'gloves':
-                character.gloves = None
-            elif item.armor_type == 'trousers':
-                character.trousers = None
-            character.armor -= item.armor
-            character.magic_resist -= item.magic_resist
-        character.health -= item.health
-        character.save()
-
-    def equip_item(self, character: Character, item: Item):
-        if item.weapon_type: # If it's a weapon
-            if character.weapon:
-                self.unequip_item(character, character.weapon)
-            character.weapon = item
-            character.damage += item.damage
-        else: # If it's armor
-            if item.armor_type == 'helmet':
-                if character.helmet:
-                    self.unequip_item(character, character.helmet)
-                character.helmet = item
-            elif item.armor_type == 'armor':
-                if character.armor:
-                    self.unequip_item(character, character.armor)
-                character.armor = item
-            elif item.armor_type == 'boots':
-                if character.boots:
-                    self.unequip_item(character, character.boots)
-                character.boots = item
-            elif item.armor_type == 'gloves':
-                if character.gloves:
-                    self.unequip_item(character, character.gloves)
-                character.gloves = item
-            elif item.armor_type == 'trousers':
-                if character.trousers:
-                    self.unequip_item(character, character.trousers)
-                character.trousers = item
-            character.armor += item.armor
-            character.magic_resist += item.magic_resist
-        character.health += item.health
-        character.save()
-
-    @receiver(post_save, sender=Character)
-    def create_characteritem(sender, instance, created, **kwargs):
-        if created:
-            CharacterItem.objects.create(character=instance)
-
-
+    def __str__(self):
+        return self.name
+    
 class UserItems(models.Model):
-    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, unique=True)
     item = models.ManyToManyField(Item, blank=True)
+
+    def __str__(self):
+        return str(self.user.name) + ' [' + str(self.item.count()) + ']'
 
     @receiver(post_save, sender=get_user_model())
     def create_characteritem(sender, instance, created, **kwargs):
@@ -157,11 +118,66 @@ class UserItems(models.Model):
             UserItems.objects.create(user=instance)
 
 
+
+class CharacterItem(models.Model):
+    """Model for items already equiped by character"""
+    character = models.ForeignKey(Character, on_delete=models.CASCADE)
+    item = models.ForeignKey(Item, on_delete=models.CASCADE, null=True)
+    slot = models.CharField(max_length=100, choices=ITEM_TYPES, default='weapon')
+
+    def __str__(self):
+        return str(self.slot) + ' ' + str(self.character.user.name)
+
+    def validate(self):
+        # Check if there's already an equipped item of the same type
+        equipped_items = CharacterItem.objects.filter(character=self.character).exclude(id=self.id)
+        user_items = UserItems.objects.get(user=self.character.user)
+        is_equipped = False
+        for item in user_items.item.all():
+            if item.id == self.item.id:
+                is_equipped = True
+        if not is_equipped:
+            raise ValidationError({'item': 'This item is not in player inventory!'})
+        for equipped_item in equipped_items:
+            if equipped_item.slot == self.slot and equipped_item.item.item_type == self.item.item_type:
+
+                raise ValidationError({'item': 'Cannot equip more than one item of the same type in this slot'})
+        if self.slot != self.item.item_type:
+            raise ValidationError({'item': 'Invalid slot for this item'})
+
+    def clean(self):
+        if self.item:
+            self.validate()
+        
+    def save(self, *args, **kwargs):
+        self.clean()
+        return super().save(*args, **kwargs)
+    
+    @receiver(m2m_changed, sender=UserItems.item.through)
+    def remove_related_character_item(sender, instance, action, pk_set, **kwargs):
+        if action == 'post_remove':
+            for pk in pk_set:
+                character = Character.objects.get(user=instance.user)
+                char_item = CharacterItem.objects.get(character=character, item=pk)
+                char_item.item = None
+                char_item.save()
+
+    @receiver(post_save, sender=Character)
+    def create_characteritem(sender, instance, created, **kwargs):
+        if created:
+            CharacterItem.objects.create(character=instance, slot='weapon')
+            CharacterItem.objects.create(character=instance, slot='helmet')
+            CharacterItem.objects.create(character=instance, slot='armor')
+            CharacterItem.objects.create(character=instance, slot='gloves')
+            CharacterItem.objects.create(character=instance, slot='boots')
+            CharacterItem.objects.create(character=instance, slot='trousers')
+
+
 class Enemy(models.Model):
     name = models.CharField(max_length=255)
     hp = models.IntegerField()
     armor = models.IntegerField()
-    magic_resists = models.IntegerField()
+    magicResist = models.IntegerField()
     damage = models.IntegerField()
     lvl = models.IntegerField()
     loot = models.ManyToManyField(Item)

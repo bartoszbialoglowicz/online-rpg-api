@@ -91,12 +91,14 @@ class ItemSerializer(serializers.ModelSerializer):
 
 
 class CharacterItemSerializer(serializers.ModelSerializer):
+    item = ItemSerializer(many=False, read_only=True)
     class Meta:
         model = models.CharacterItem
-        fields = '__all__'
+        fields = ('slot', 'item')
 
 
 class UserItemsSerializer(serializers.ModelSerializer):
+    item = ItemSerializer(many=True, read_only=True)
     class Meta:
         model = models.UserItems
         fields = '__all__'

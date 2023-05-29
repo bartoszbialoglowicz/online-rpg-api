@@ -5,6 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.settings import api_settings
+from rest_framework.exceptions import ValidationError
 
 from api import models
 from api import serializers
@@ -12,9 +13,15 @@ from api import serializers
 
 class BaseViewSet(viewsets.GenericViewSet,
                   mixins.ListModelMixin,
-                  mixins.CreateModelMixin):
+                  mixins.CreateModelMixin,
+                  mixins.UpdateModelMixin,
+                  mixins.RetrieveModelMixin):
     authentication_classes = (TokenAuthentication, )
     permission_classes = (IsAuthenticated,)
+
+    def partial_update(self, request, *args, **kwargs):
+        # Do something with the partial update data
+        return super().partial_update(request, *args, **kwargs)
 
 
 class ResourceViewSet(BaseViewSet):
@@ -66,15 +73,17 @@ class CharacterViewSet(BaseViewSet):
 
 class ItemViewSet(BaseViewSet):
     serializer_class = serializers.ItemSerializer
-    queryset = models.Character.objects.all()
+    queryset = models.Item.objects.all()
 
 
 class CharacterItemViewSet(BaseViewSet):
     serializer_class = serializers.CharacterItemSerializer
     queryset = models.CharacterItem.objects.all()
+    lookup_field = 'slot'
 
     def get_queryset(self):
-        return models.CharacterItem.objects.filter(character=self.request.character)
+        character = models.Character.objects.get(user=self.request.user)
+        return models.CharacterItem.objects.filter(character=character)
 
 
 class UserItemViewSet(BaseViewSet):
@@ -82,7 +91,7 @@ class UserItemViewSet(BaseViewSet):
     queryset = models.UserItems.objects.all()
 
     def get_queryset(self):
-        return models.UserItems.objects.filter(user=self.request.user)
+        return models.UserItems.objects.filter(user=self.request.user)    
 
 
 class EnemyViewSet(BaseViewSet):
