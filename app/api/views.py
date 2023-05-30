@@ -112,11 +112,22 @@ class LocationViewSet(BaseViewSet):
     http_method_names = ['get']
 
 
+class UserLocationViewSet(BaseViewSet):
+    serializer_class = serializers.UserLocationSerializer
+    queryset = models.UserLocation.objects.all()
+
+    def get_queryset(self):
+        return models.UserLocation.objects.filter(user=self.request.user)
+
+
 class StoreViewSet(BaseViewSet):
     serializer_class = serializers.StoreSerializer
     queryset = models.Store.objects.all()
-    lookup_field = 'location'
     http_method_names = ['get']
+
+    def get_queryset(self):
+        location = models.UserLocation.objects.get(user=self.request.user)
+        return models.Store.objects.filter(location=location.location)
 
 
 class StoreItemViewSet(BaseViewSet):

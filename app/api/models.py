@@ -194,10 +194,19 @@ class EnemyLoot(models.Model):
     item = models.ForeignKey(Item, on_delete=models.CASCADE)
 
 
+class Region(models.Model):
+    name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
+
 class Location(models.Model):
     name = models.CharField(max_length=100)
+    region = models.ForeignKey(Region, on_delete=models.CASCADE, default=1)
     lvlRequired = models.IntegerField()
 
+    def __str__(self):
+        return (f'[{self.region}] {self.name}')
 
 class Store(models.Model):
     STORE_TYPES = [
@@ -208,13 +217,31 @@ class Store(models.Model):
     name = models.CharField(max_length=100)
     type = models.CharField(max_length=64, choices=STORE_TYPES)
 
+    def __str__(self):
+        return (f'{self.location} - {self.name}')
+
 
 class StoreItem(models.Model):
     store = models.ForeignKey(Store, on_delete=models.CASCADE)
     item = models.ForeignKey(Item, on_delete=models.CASCADE)
     price = models.IntegerField()
 
+    def __str__(self):
+        return (f'[{self.store}] {self.item} ({self.price})')
 
 class LocationEnemy(models.Model):
     location = models.ForeignKey(Location, on_delete=models.CASCADE)
     enemy = models.ForeignKey(Enemy, on_delete=models.CASCADE)
+
+class UserLocation(models.Model):
+    location = models.ForeignKey(Location, on_delete=models.SET_DEFAULT, default=1)
+    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+
+    def __str__(self):
+        return (f'{self.user} - {self.location}')
+
+    @receiver(post_save, sender=get_user_model())
+    def create_user_location(sender, instance, created, **kwargs):
+        if created:
+            UserLocation.objects.create(user=instance)
+                

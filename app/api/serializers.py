@@ -123,6 +123,13 @@ class LocationSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class UserLocationSerializer(serializers.ModelSerializer):
+    location = LocationSerializer(many=False, read_only=True)
+    class Meta:
+        model = models.UserLocation
+        fields = '__all__'
+
+
 class StoreSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Store
