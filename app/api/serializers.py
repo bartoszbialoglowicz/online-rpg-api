@@ -108,3 +108,28 @@ class EnemySerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Enemy
         fields = '__all__'
+
+
+class EnemyLootSerializer(serializers.ModelSerializer):
+    item = ItemSerializer(read_only=True, many=False)
+    class Meta:
+        model = models.EnemyLoot
+        fields = ('item',)
+
+
+class LocationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Location
+        fields = '__all__'
+
+
+class StoreSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Store
+        fields = '__all__'
+
+
+class StoreItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.StoreItem
+        fields = '__all__'

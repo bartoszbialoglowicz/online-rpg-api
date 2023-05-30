@@ -10,6 +10,10 @@ router.register('item', views.ItemViewSet)
 router.register('equipment', views.CharacterItemViewSet)
 router.register('useritems', views.UserItemViewSet)
 router.register('enemies', views.EnemyViewSet)
+router.register('enemy_loot', views.EnemyLootViewSet)
+router.register('locations', views.LocationViewSet)
+router.register('store', views.StoreViewSet)
+router.register('storeitems', views.StoreItemViewSet)
 
 app_name = 'api'
 

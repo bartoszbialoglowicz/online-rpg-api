@@ -1,5 +1,6 @@
 import sys
 from django.db import models
+from django.core.validators import MaxValueValidator, MinValueValidator
 from rest_framework.exceptions import ValidationError
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
@@ -180,4 +181,40 @@ class Enemy(models.Model):
     magicResist = models.IntegerField()
     damage = models.IntegerField()
     lvl = models.IntegerField()
-    loot = models.ManyToManyField(Item)
+
+
+class EnemyLoot(models.Model):
+    enemy = models.ForeignKey(Enemy, on_delete=models.CASCADE)
+    rarity = models.FloatField(
+        validators=[
+            MinValueValidator(0.0001),
+            MaxValueValidator(0.0009)
+        ]
+    )
+    item = models.ForeignKey(Item, on_delete=models.CASCADE)
+
+
+class Location(models.Model):
+    name = models.CharField(max_length=100)
+    lvlRequired = models.IntegerField()
+
+
+class Store(models.Model):
+    STORE_TYPES = [
+        ('weapon', 'weapon'),
+        ('alchemist', 'alchemist')
+    ]
+    location = models.ForeignKey(Location, on_delete=models.CASCADE)
+    name = models.CharField(max_length=100)
+    type = models.CharField(max_length=64, choices=STORE_TYPES)
+
+
+class StoreItem(models.Model):
+    store = models.ForeignKey(Store, on_delete=models.CASCADE)
+    item = models.ForeignKey(Item, on_delete=models.CASCADE)
+    price = models.IntegerField()
+
+
+class LocationEnemy(models.Model):
+    location = models.ForeignKey(Location, on_delete=models.CASCADE)
+    enemy = models.ForeignKey(Enemy, on_delete=models.CASCADE)

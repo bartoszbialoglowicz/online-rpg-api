@@ -97,3 +97,30 @@ class UserItemViewSet(BaseViewSet):
 class EnemyViewSet(BaseViewSet):
     serializer_class = serializers.EnemySerializer
     queryset = models.Enemy.objects.all()
+    http_method_names = ['get']
+
+class EnemyLootViewSet(BaseViewSet):
+    serializer_class = serializers.EnemyLootSerializer
+    queryset = models.EnemyLoot.objects.all()
+    lookup_field = 'enemy'
+    http_method_names = ['get']
+
+
+class LocationViewSet(BaseViewSet):
+    serializer_class = serializers.LocationSerializer
+    queryset = models.Location.objects.all()
+    http_method_names = ['get']
+
+
+class StoreViewSet(BaseViewSet):
+    serializer_class = serializers.StoreSerializer
+    queryset = models.Store.objects.all()
+    lookup_field = 'location'
+    http_method_names = ['get']
+
+
+class StoreItemViewSet(BaseViewSet):
+    serializer_class = serializers.StoreItemSerializer
+    queryset = models.StoreItem.objects.all()
+    lookup_field = 'store'
+    http_method_names = ['get']
