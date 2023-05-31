@@ -34,7 +34,7 @@ class UserSerializer(serializers.ModelSerializer):
         }
 
     def create(self, validated_data):
-        return get_user_model().objects.create(**validated_data)
+        return get_user_model().objects.create_user(**validated_data)
     
     def update(self, instance, validated_data):
         password = validated_data.pop('password', None)
@@ -110,7 +110,7 @@ class CharacterItemSerializer(serializers.ModelSerializer):
 
 
 class UserItemsSerializer(serializers.ModelSerializer):
-    item = ItemSerializer(many=True, read_only=True)
+    item = ItemSerializer(many=False, read_only=True)
     class Meta:
         model = models.UserItems
         fields = '__all__'
