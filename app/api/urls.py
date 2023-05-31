@@ -15,6 +15,7 @@ router.register('locations', views.LocationViewSet)
 router.register('current_location', views.UserLocationViewSet)
 router.register('store', views.StoreViewSet)
 router.register('storeitems', views.StoreItemViewSet)
+router.register('inventory', views.InventoryViewSet)
 
 app_name = 'api'
 

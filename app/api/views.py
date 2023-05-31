@@ -135,3 +135,33 @@ class StoreItemViewSet(BaseViewSet):
     queryset = models.StoreItem.objects.all()
     lookup_field = 'store'
     http_method_names = ['get']
+
+
+class InventoryViewSet(BaseViewSet):
+    serializer_class = serializers.UserItemsSerializer
+    serializer_classes = {
+        'items': serializers.UserItemsSerializer,
+        'potions': serializers.UserPotionsSerializer,
+        'collectableItems': serializers.UserCollectableItemsSerializer,
+    }
+    queryset = models.UserItems.objects.all()
+
+    
+
+    def list(self, reqeust):
+        user = reqeust.user
+        items = models.UserItems.objects.filter(user=user)
+        potions = models.UserPotions.objects.filter(user=user)
+        collectable = models.UserCollectableItem.objects.filter(user=user)
+    
+        item_serializer = self.serializer_classes['items'](items, many=True)
+        potion_serializer = self.serializer_classes['potions'](potions, many=True)
+        collectable_serializer = self.serializer_classes['collectableItems'](collectable, many=True)
+
+        data = {
+            'items': item_serializer.data,
+            'potions': potion_serializer.data,
+            'collectableItems': collectable_serializer.data
+        }
+
+        return Response(data)
