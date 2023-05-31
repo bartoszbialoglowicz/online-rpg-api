@@ -5,7 +5,7 @@ from rest_framework.exceptions import ValidationError
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.contrib.auth.models import BaseUserManager
-from django.db.models.signals import post_save, m2m_changed
+from django.db.models.signals import post_save, pre_delete
 from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -120,22 +120,18 @@ class Potion(models.Model):
     
 class UserItems(models.Model):
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, unique=True)
-    item = models.ManyToManyField(Item, blank=True)
+    item = models.ForeignKey(Item, on_delete=models.CASCADE)
 
     def __str__(self):
-        return str(self.user.name) + ' [' + str(self.item.count()) + ']'
+        return (f'[{self.user.name}] {self.item.name }')
 
-    @receiver(post_save, sender=get_user_model())
-    def create_characteritem(sender, instance, created, **kwargs):
-        if created:
-            UserItems.objects.create(user=instance)
 
 
 class UserCollectableItem(models.Model):
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     collectableItem = models.ForeignKey(CollectableItem, on_delete=models.CASCADE)
     quantity = models.IntegerField()
-    
+
 
 class UserPotions(models.Model):
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
@@ -155,7 +151,7 @@ class CharacterItem(models.Model):
     def validate(self):
         # Check if there's already an equipped item of the same type
         equipped_items = CharacterItem.objects.filter(character=self.character).exclude(id=self.id)
-        user_items = UserItems.objects.get(user=self.character.user)
+        user_items = UserItems.objects.filter(user=self.character.user)
         is_equipped = False
         for item in user_items.item.all():
             if item.id == self.item.id:
@@ -163,10 +159,10 @@ class CharacterItem(models.Model):
         if not is_equipped:
             raise ValidationError({'item': 'This item is not in player inventory!'})
         for equipped_item in equipped_items:
-            if equipped_item.slot == self.slot and equipped_item.item.item_type == self.item.item_type:
+            if equipped_item.slot == self.slot and equipped_item.item.itemType == self.item.itemType:
 
                 raise ValidationError({'item': 'Cannot equip more than one item of the same type in this slot'})
-        if self.slot != self.item.item_type:
+        if self.slot != self.item.itemType:
             raise ValidationError({'item': 'Invalid slot for this item'})
 
     def clean(self):
@@ -177,7 +173,7 @@ class CharacterItem(models.Model):
         self.clean()
         return super().save(*args, **kwargs)
     
-    @receiver(m2m_changed, sender=UserItems.item.through)
+    @receiver(pre_delete, sender=UserItems.item)
     def remove_related_character_item(sender, instance, action, pk_set, **kwargs):
         if action == 'post_remove':
             for pk in pk_set:
@@ -257,7 +253,7 @@ class LocationEnemy(models.Model):
     enemy = models.ForeignKey(Enemy, on_delete=models.CASCADE)
 
 class UserLocation(models.Model):
-    location = models.ForeignKey(Location, on_delete=models.SET_DEFAULT, default=1)
+    location = models.ForeignKey(Location, on_delete=models.SET_DEFAULT, default=2)
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
 
     def __str__(self):
