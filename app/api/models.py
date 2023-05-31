@@ -106,6 +106,18 @@ class Item(models.Model):
     def __str__(self):
         return self.name
     
+
+class CollectableItem(models.Model):
+    name = models.CharField(max_length=100)
+    goldValue = models.IntegerField()
+
+
+class Potion(models.Model):
+    name = models.CharField(max_length=100)
+    hpValue = models.IntegerField()
+    goldValue = models.IntegerField()
+
+    
 class UserItems(models.Model):
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, unique=True)
     item = models.ManyToManyField(Item, blank=True)
@@ -118,6 +130,17 @@ class UserItems(models.Model):
         if created:
             UserItems.objects.create(user=instance)
 
+
+class UserCollectableItem(models.Model):
+    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    collectableItem = models.ForeignKey(CollectableItem, on_delete=models.CASCADE)
+    quantity = models.IntegerField()
+    
+
+class UserPotions(models.Model):
+    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    potion = models.ForeignKey(Potion, on_delete=models.CASCADE)
+    quantity = models.IntegerField()
 
 
 class CharacterItem(models.Model):

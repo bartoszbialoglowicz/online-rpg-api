@@ -90,6 +90,18 @@ class ItemSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class CollectableItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.CollectableItem
+        fields = '__all__'
+
+
+class PotionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Potion
+        fields = '__all__'
+
+
 class CharacterItemSerializer(serializers.ModelSerializer):
     item = ItemSerializer(many=False, read_only=True)
     class Meta:
@@ -101,6 +113,20 @@ class UserItemsSerializer(serializers.ModelSerializer):
     item = ItemSerializer(many=True, read_only=True)
     class Meta:
         model = models.UserItems
+        fields = '__all__'
+
+
+class UserCollectableItemsSerializer(serializers.ModelSerializer):
+    collectableItem = CollectableItemSerializer(many=False, read_only=True)
+    class Meta:
+        model = models.UserCollectableItem
+        fields = '__all__'
+        
+
+class UserPotionsSerializer(serializers.ModelSerializer):
+    potion = PotionSerializer(many=False, read_only=True)
+    class Meta:
+        model = models.UserPotions
         fields = '__all__'
 
 
