@@ -119,7 +119,7 @@ class Potion(models.Model):
 
     
 class UserItems(models.Model):
-    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, unique=True)
+    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     item = models.ForeignKey(Item, on_delete=models.CASCADE)
 
     def __str__(self):
@@ -153,7 +153,7 @@ class CharacterItem(models.Model):
         equipped_items = CharacterItem.objects.filter(character=self.character).exclude(id=self.id)
         user_items = UserItems.objects.filter(user=self.character.user)
         is_equipped = False
-        for item in user_items.item.all():
+        for item in user_items:
             if item.id == self.item.id:
                 is_equipped = True
         if not is_equipped:
@@ -172,15 +172,6 @@ class CharacterItem(models.Model):
     def save(self, *args, **kwargs):
         self.clean()
         return super().save(*args, **kwargs)
-    
-    @receiver(pre_delete, sender=UserItems.item)
-    def remove_related_character_item(sender, instance, action, pk_set, **kwargs):
-        if action == 'post_remove':
-            for pk in pk_set:
-                character = Character.objects.get(user=instance.user)
-                char_item = CharacterItem.objects.get(character=character, item=pk)
-                char_item.item = None
-                char_item.save()
 
     @receiver(post_save, sender=Character)
     def create_characteritem(sender, instance, created, **kwargs):
@@ -253,7 +244,7 @@ class LocationEnemy(models.Model):
     enemy = models.ForeignKey(Enemy, on_delete=models.CASCADE)
 
 class UserLocation(models.Model):
-    location = models.ForeignKey(Location, on_delete=models.SET_DEFAULT, default=2)
+    location = models.ForeignKey(Location, on_delete=models.SET_DEFAULT, default=1)
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
 
     def __str__(self):
