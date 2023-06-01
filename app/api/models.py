@@ -238,10 +238,24 @@ class StoreItem(models.Model):
 
     def __str__(self):
         return (f'[{self.store}] {self.item} ({self.price})')
+    
+
+class StorePotion(models.Model):
+    store = models.ForeignKey(Store, on_delete=models.CASCADE)
+    potion = models.ForeignKey(Potion, on_delete=models.CASCADE)
+    price = models.IntegerField()
+
+
+class StoreCollectableItem(models.Model):
+    store = models.ForeignKey(Store, on_delete=models.CASCADE)
+    collectableItem = models.ForeignKey(CollectableItem, on_delete=models.CASCADE)
+    price = models.IntegerField()
+
 
 class LocationEnemy(models.Model):
     location = models.ForeignKey(Location, on_delete=models.CASCADE)
     enemy = models.ForeignKey(Enemy, on_delete=models.CASCADE)
+
 
 class UserLocation(models.Model):
     location = models.ForeignKey(Location, on_delete=models.SET_DEFAULT, default=1)

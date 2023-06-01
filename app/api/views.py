@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.settings import api_settings
 from rest_framework.exceptions import ValidationError
-
+from rest_framework.decorators import action
 from api import models
 from api import serializers
 
@@ -122,8 +122,31 @@ class UserLocationViewSet(BaseViewSet):
 
 class StoreViewSet(BaseViewSet):
     serializer_class = serializers.StoreSerializer
+    serializer_classes = {
+        'items': serializers.StoreItemSerializer,
+        'potions': serializers.StorePotionSerializer,
+        'collectableItems': serializers.StoreCollectableItemSerializer
+    }
     queryset = models.Store.objects.all()
     http_method_names = ['get']
+
+    def retrieve(self, request, pk=None):
+        user = request.user
+        items = models.StoreItem.objects.filter(store=pk)
+        potions = models.StorePotion.objects.filter(store=pk)
+        collectable = models.StoreCollectableItem.objects.filter(store=pk)
+
+        item_serializer = self.serializer_classes['items'](items, many=True)
+        potion_serializer = self.serializer_classes['potions'](potions, many=True)
+        collectable_serializer = self.serializer_classes['collectableItems'](collectable, many=True)
+
+        data = {
+            'items': item_serializer.data,
+            'potions': potion_serializer.data,
+            'collectableItems': collectable_serializer.data
+        }
+
+        return Response(data)
 
     def get_queryset(self):
         location = models.UserLocation.objects.get(user=self.request.user)

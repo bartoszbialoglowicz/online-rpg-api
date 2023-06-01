@@ -163,6 +163,21 @@ class StoreSerializer(serializers.ModelSerializer):
 
 
 class StoreItemSerializer(serializers.ModelSerializer):
+    item = ItemSerializer(many=False, read_only=True)
     class Meta:
         model = models.StoreItem
+        fields = '__all__'
+
+
+class StorePotionSerializer(serializers.ModelSerializer):
+    potion = PotionSerializer(many=False, read_only=True)
+    class Meta:
+        model = models.StorePotion
+        fields = '__all__'
+
+
+class StoreCollectableItemSerializer(serializers.ModelSerializer):
+    collectableItem = CollectableItemSerializer(many=False, read_only=True)
+    class Meta:
+        model = models.StoreCollectableItem
         fields = '__all__'
