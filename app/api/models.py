@@ -65,7 +65,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
 class Resources(models.Model):
     """Resources model for user"""
-    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE)
     gold = models.IntegerField(default=100)
     lvl = models.IntegerField(default=1)
     exp = models.IntegerField(default=0)
@@ -80,7 +80,7 @@ class Resources(models.Model):
 
 
 class Character(models.Model):
-    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE)
     armor = models.IntegerField(default=0)
     magicResist = models.IntegerField(default=0)
     health = models.IntegerField(default=100)
@@ -245,7 +245,7 @@ class LocationEnemy(models.Model):
 
 class UserLocation(models.Model):
     location = models.ForeignKey(Location, on_delete=models.SET_DEFAULT, default=1)
-    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE)
 
     def __str__(self):
         return (f'{self.user} - {self.location}')
