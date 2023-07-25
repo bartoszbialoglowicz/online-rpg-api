@@ -1,62 +1,49 @@
 import json
-from channels.generic.websocket import AsyncWebsocketConsumer
+from channels.generic.websocket import WebsocketConsumer
+from django.forms.models import model_to_dict
+
 from api import models
-from django.db.models import F
+from api.fight import Fight
 
+class CombatSystemConsumer(WebsocketConsumer):
+    def connect(self):
+            self.user = None
+            self.enemy = None
+            self.accept()
 
-class CombatSystemConsumer(AsyncWebsocketConsumer):
-    async def connect(self):
-        self.room_name = 'combat_room'
-        self.room_group_name = 'combat_group'
-
-        await self.channel_layer.group_add(
-            self.room_group_name,
-            self.channel_name
-        )
-
-        await self.accept()
+    def disconnect(self, close_code):
+        # Leave the room group
+        self.close()
     
-    async def disconnect(self, close_code):
-        await self.channel_layer.group_discard(
-            self.room_group_name,
-            self.channel_name
-        )
-    
-    async def receive(self, text_data):
-        data = json.loads(text_data)
+    def receive(self, text_data):
+        
+        try:
+            message = json.loads(text_data)
+        except json.JSONDecodeError:
+            return
 
-        if 'action' in data and data['action'] == 'attack':
-            character = models.Character.objects.first()
-            enemy = models.Enemy.objects.first()
+        if 'type' in message and message['type'] == 'set_enemy':
+            self.enemy = models.Enemy.objects.get(id=message['enemyId'])
+        if 'type' in message and message['type'] == 'set_user':
+            user_id = models.CustomUser.objects.get(email=message['userEmail'])
+            self.user = models.Character.objects.get(user=user_id)
+        if 'action' in message and message['action'] == 'user_attack':
+            self.user, self.enemy = Fight.normal_attack(self.user, self.enemy, True)
+            self.send(text_data=json.dumps({'character': model_to_dict(self.user)}))
+            self.send(text_data=json.dumps({'enemy': model_to_dict(self.enemy)}))
+        if self.enemy.hp <= 0:
+            loot = Fight.get_loot(self.enemy)
+            self.send(text_data=json.dumps({
+                'message': 'You won the fight',
+                'loot': loot[0],
+                'strike': loot[1]
+            }))
 
-            char_hp = character.health
-            char_dmg = character.damage
-            enemy_hp = enemy.hp
-            enemy_dmg = enemy.damage
-
-            enemy_hp = enemy_hp - char_dmg
-            if enemy_hp <= 0:
-                enemy_hp = 0
-            
-            char_hp = char_hp - enemy_dmg
-            if char_hp <= 0:
-                char_hp = 0
-            
-            updated_game_state = {
-                'user': {
-                    'hp': char_hp,
-                    'damage': char_dmg
-                },
-                'enemy': {
-                    'hp': enemy_hp,
-                    'damage': enemy_dmg
-                }
-            }
-
-            await self.channel_layer.group_send(
-                self.room_group_name,
-                {
-                    'type': 'combat_message',
-                    'message': json.dumps(updated_game_state),
-                }
-            )
+        if 'action' in message and message['action'] == 'enemy_attack':
+            self.user, self.enemy = Fight.normal_attack(self.user, self.enemy, False)
+            self.send(text_data=json.dumps({'character': model_to_dict(self.user)}))
+            self.send(text_data=json.dumps({'enemy': model_to_dict(self.enemy)}))
+            if self.user.health <= 0:
+                self.send(text_data=json.dumps({
+                    'message': 'You lost the fight'
+                }))
