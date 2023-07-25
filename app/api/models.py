@@ -192,17 +192,22 @@ class Enemy(models.Model):
     damage = models.IntegerField()
     lvl = models.IntegerField()
 
+    def __str__(self):
+        return self.name
+
 
 class EnemyLoot(models.Model):
     enemy = models.ForeignKey(Enemy, on_delete=models.CASCADE)
     rarity = models.FloatField(
         validators=[
             MinValueValidator(0.0001),
-            MaxValueValidator(0.0009)
+            MaxValueValidator(1.0000)
         ]
     )
     item = models.ForeignKey(Item, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return self.enemy.name + ' [' +  self.item.name + ']'
 
 class Region(models.Model):
     name = models.CharField(max_length=100)
@@ -256,7 +261,6 @@ class LocationEnemy(models.Model):
     location = models.ForeignKey(Location, on_delete=models.CASCADE)
     enemy = models.ForeignKey(Enemy, on_delete=models.CASCADE)
 
-
 class UserLocation(models.Model):
     location = models.ForeignKey(Location, on_delete=models.SET_DEFAULT, default=1)
     user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE)
@@ -268,4 +272,11 @@ class UserLocation(models.Model):
     def create_user_location(sender, instance, created, **kwargs):
         if created:
             UserLocation.objects.create(user=instance)
-                
+
+
+class Fight(models.Model):
+    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    enemy = models.ForeignKey(Enemy, on_delete=models.CASCADE)
+    currentPlayerHP = models.IntegerField()
+    currentEnemyHP = models.IntegerField()
+    isActive = models.BooleanField(default=False)
