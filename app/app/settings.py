@@ -28,27 +28,30 @@ DEBUG = True
 ALLOWED_HOSTS = [
     '192.168.0.143',
     '192.168.0.66',
-    '127.0.0.1'
+    '127.0.0.1',
 ]
 
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000'
+    'http://localhost:3000',
+    'http://192.168.0.66:3000'
 ]
 # Application definition
 
 INSTALLED_APPS = [
+    'channels',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'channels',
     'rest_framework',
     'rest_framework.authtoken',
     "corsheaders",
     'api',
 ]
+
+ASGI_APPLICATION = 'app.asgi.application'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -142,4 +145,3 @@ REST_FRAMEWORK = {
     ]
 }
 
-ASGI_APPLICATION = 'api.routing.application'
