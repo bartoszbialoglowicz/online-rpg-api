@@ -31,13 +31,15 @@ class CombatSystemConsumer(WebsocketConsumer):
             self.user, self.enemy = Fight.normal_attack(self.user, self.enemy, True)
             self.send(text_data=json.dumps({'character': model_to_dict(self.user)}))
             self.send(text_data=json.dumps({'enemy': model_to_dict(self.enemy)}))
-        if self.enemy.hp <= 0:
-            loot = Fight.get_loot(self.enemy)
-            self.send(text_data=json.dumps({
-                'message': 'You won the fight',
-                'loot': loot[0],
-                'strike': loot[1]
-            }))
+            if self.enemy.hp <= 0:
+                loot = Fight.get_loot(self.enemy)
+                self.send(text_data=json.dumps({
+                    'message': 'You won the fight',
+                    'fightIsOver': True,
+                    'loot': loot[0],
+                    'strike': loot[1]
+                }))
+                self.close()
 
         if 'action' in message and message['action'] == 'enemy_attack':
             self.user, self.enemy = Fight.normal_attack(self.user, self.enemy, False)
@@ -45,5 +47,7 @@ class CombatSystemConsumer(WebsocketConsumer):
             self.send(text_data=json.dumps({'enemy': model_to_dict(self.enemy)}))
             if self.user.health <= 0:
                 self.send(text_data=json.dumps({
-                    'message': 'You lost the fight'
+                    'message': 'You lost the fight',
+                    'fightIsOver': True,
                 }))
+                self.close()
