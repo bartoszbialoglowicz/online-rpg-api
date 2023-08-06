@@ -20,6 +20,9 @@ ITEM_TYPES = [
     ('weapon', 'weapon')
 ]
 
+def upload_to(instance, filename):
+    return 'images/{filename}'.format(filename=filename)
+
 
 class CustomUserManager(BaseUserManager):
 
@@ -102,6 +105,7 @@ class Item(models.Model):
     magicResist = models.IntegerField(default=0)
     health = models.IntegerField(default=0)
     damage = models.IntegerField(default=0)
+    imageUrl = models.ImageField(upload_to=upload_to, blank=True, null=True)
 
     def __str__(self):
         return self.name
@@ -159,9 +163,10 @@ class CharacterItem(models.Model):
         if not is_equipped:
             raise ValidationError({'item': 'This item is not in player inventory!'})
         for equipped_item in equipped_items:
-            if equipped_item.slot == self.slot and equipped_item.item.itemType == self.item.itemType:
+            if equipped_item is None:
+                if equipped_item.slot == self.slot and equipped_item.item.itemType == self.item.itemType:
 
-                raise ValidationError({'item': 'Cannot equip more than one item of the same type in this slot'})
+                    raise ValidationError({'item': 'Cannot equip more than one item of the same type in this slot'})
         if self.slot != self.item.itemType:
             raise ValidationError({'item': 'Invalid slot for this item'})
 
