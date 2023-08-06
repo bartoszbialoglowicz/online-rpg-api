@@ -5,8 +5,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.settings import api_settings
-from rest_framework.exceptions import ValidationError
 from rest_framework.decorators import action
+from rest_framework.parsers import MultiPartParser, FormParser
 from api import models
 from api import serializers
 
@@ -74,7 +74,10 @@ class CharacterViewSet(BaseViewSet):
 class ItemViewSet(BaseViewSet):
     serializer_class = serializers.ItemSerializer
     queryset = models.Item.objects.all()
+    parser_classes = (MultiPartParser, FormParser)
 
+    def perform_create(self, serializer):
+        serializer.save(creator=self.request.user)
 
 class CharacterItemViewSet(BaseViewSet):
     serializer_class = serializers.CharacterItemSerializer

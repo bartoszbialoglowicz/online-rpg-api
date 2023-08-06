@@ -85,6 +85,7 @@ class CharacterSerializer(serializers.ModelSerializer):
 
 
 class ItemSerializer(serializers.ModelSerializer):
+    imageUrl = serializers.ImageField(required=False)
     class Meta:
         model = models.Item
         fields = '__all__'
