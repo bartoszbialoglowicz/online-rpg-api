@@ -115,6 +115,13 @@ class UserItemsSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.UserItems
         fields = '__all__'
+    
+    def get_imageUrl(self, obj):
+        # Get the request object from the context
+        request = self.context.get('request')
+        if obj.item.imageUrl:
+            return request.build_absolute_uri(obj.item.imageUrl.url)
+        return None
 
 
 class UserCollectableItemsSerializer(serializers.ModelSerializer):
