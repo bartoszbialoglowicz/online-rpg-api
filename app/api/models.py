@@ -91,6 +91,36 @@ class Character(models.Model):
 
     def __str__(self):
         return str(self.user.name)
+    
+    # Remove current item stats from Character model
+    def remove_equipped_item_stats(self, item_slot):
+        try:
+            character_item = CharacterItem.objects.get(character=self, slot=item_slot)
+            if character_item.item is not None:
+                self.armor -= character_item.item.armor
+                self.magicResist -= character_item.item.magicResist
+                self.health -= character_item.item.health
+                self.damage -= character_item.item.damage
+
+            self.save()
+
+        except CharacterItem.DoesNotExist:
+            pass
+
+    # Replace current item stats with other item stats
+    def replace_equipped_item_stats(self, item, slot):
+        try:
+            self.remove_equipped_item_stats(slot)
+            new_item = item
+            self.armor += new_item.armor
+            self.magicResist += new_item.magicResist
+            self.health += new_item.health
+            self.damage += new_item.damage
+
+            self.save()
+
+        except CharacterItem.DoesNotExist or Item.DoesNotExist:
+            pass
 
     @receiver(post_save, sender=get_user_model())
     def create_character(sender, instance, created, **kwargs):
@@ -157,13 +187,12 @@ class CharacterItem(models.Model):
         equipped_items = CharacterItem.objects.filter(character=self.character).exclude(id=self.id)
         user_items = UserItems.objects.filter(user=self.character.user)
         is_equipped = False
-        for item in user_items:
-            if item.id == self.item.id:
+        for useritem in user_items:
+            if useritem.item.id == self.item.id:
                 is_equipped = True
         if not is_equipped:
             raise ValidationError({'item': 'This item is not in player inventory!'})
         for equipped_item in equipped_items:
-            if equipped_item is None:
                 if equipped_item.slot == self.slot and equipped_item.item.itemType == self.item.itemType:
 
                     raise ValidationError({'item': 'Cannot equip more than one item of the same type in this slot'})
