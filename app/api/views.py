@@ -1,4 +1,4 @@
-from rest_framework import viewsets, mixins, generics, authentication, permissions
+from rest_framework import viewsets, mixins, generics, authentication, permissions, status
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.authtoken.models import Token
 from rest_framework.permissions import IsAuthenticated
@@ -88,10 +88,35 @@ class CharacterItemViewSet(BaseViewSet):
         character = models.Character.objects.get(user=self.request.user)
         return models.CharacterItem.objects.filter(character=character)
 
+    @action(detail=True, methods=['patch'])
+    def replace_item(self, request, slot=None):
+        try:
+            character = models.Character.objects.get(user=self.request.user)
+            character_item = models.CharacterItem.objects.get(character=character, slot=slot)
+        except models.CharacterItem.DoesNotExist:
+            return Response({'error': 'Character item not found'})
+        
+        item = request.data.get('item')
+        if item:
+            new_item = models.Item.objects.get(id=item)
+            character.replace_equipped_item_stats(new_item, slot)
+            character_item.item = new_item
+        else:
+            character.remove_equipped_item_stats(slot)
+            character_item.item = None
+
+        character_item.save()
+        serializer = self.get_serializer(character_item)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 class UserItemViewSet(BaseViewSet):
     serializer_class = serializers.UserItemsSerializer
-    queryset = models.UserItems.objects.all()
+    queryset = models.UserItems.objects.all()  
+    parser_classes = (MultiPartParser, FormParser)
+
+    def perform_create(self, serializer):
+        serializer.save(creator=self.request.user)
 
     def get_queryset(self):
         return models.UserItems.objects.filter(user=self.request.user)    
@@ -134,7 +159,6 @@ class StoreViewSet(BaseViewSet):
     http_method_names = ['get']
 
     def retrieve(self, request, pk=None):
-        user = request.user
         items = models.StoreItem.objects.filter(store=pk)
         potions = models.StorePotion.objects.filter(store=pk)
         collectable = models.StoreCollectableItem.objects.filter(store=pk)
@@ -163,6 +187,10 @@ class StoreItemViewSet(BaseViewSet):
     http_method_names = ['get']
 
 
+class StoreItemDetailViewSet(BaseViewSet):
+    serializer_class = serializers.StoreItemSerializer
+    queryset = models.StoreItem
+
 class InventoryViewSet(BaseViewSet):
     serializer_class = serializers.UserItemsSerializer
     serializer_classes = {
@@ -171,6 +199,10 @@ class InventoryViewSet(BaseViewSet):
         'collectableItems': serializers.UserCollectableItemsSerializer,
     }
     queryset = models.UserItems.objects.all()
+    parser_classes = (MultiPartParser, FormParser)
+
+    def perform_create(self, serializer):
+        serializer.save(creator=self.request.user)
 
     
 
