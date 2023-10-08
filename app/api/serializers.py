@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model, authenticate
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
+from rest_framework.exceptions import ValidationError
 
 from api import models
 
@@ -175,6 +176,13 @@ class StoreItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.StoreItem
         fields = '__all__'
+    
+    def get_imageUrl(self, obj):
+        # Get the request object from the context
+        request = self.context.get('request')
+        if obj.item.imageUrl:
+            return request.build_absolute_uri(obj.item.imageUrl.url)
+        return None
 
 
 class StorePotionSerializer(serializers.ModelSerializer):
@@ -189,3 +197,63 @@ class StoreCollectableItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.StoreCollectableItem
         fields = '__all__'
+
+
+class TransactionSerializer(serializers.ModelSerializer):
+    
+    sellItems = serializers.ListField(child=serializers.IntegerField(), write_only=True)
+    buyItems = serializers.ListField(child=serializers.IntegerField(), write_only=True)
+
+    class Meta:
+        model = models.Transaction
+        fields = ('user', 'store', 'sellItems', 'buyItems', 'totalAmount', 'date')
+        read_only_fields = ('totalAmount', 'date')
+    
+
+    def validate(self, attrs):
+        args = attrs
+        user = self.context.get('request').user
+        itemsSell = args.pop('sellItems', [])
+        itemsBuy = args.pop('buyItems', [])
+
+        sum1 = 0
+        sum2 = 0
+        
+        for i, item in enumerate(itemsSell):
+            try:
+                sum1 += models.UserItems.objects.filter(user=user).get(id=item).item.goldValue
+            except models.UserItems.DoesNotExist:
+                raise ValidationError({'error': 'Podano nieprawidłowe id przedmiotów użytkonikwa'})
+        # Sum values of items that user is going to buy
+        for i, item in enumerate(itemsBuy):
+            try: 
+                sum2 += models.StoreItem.objects.filter(store=attrs['store']).get(id=item).price
+            except models.StoreItem.DoesNotExist:
+                raise ValidationError({'error': 'Podano niepoprawne id przedmiotów ze sklepu'})
+        
+        total = sum1 - sum2
+        args['totalAmount'] = total
+        
+        if total < 0:
+            resurces = models.Resources.objects.get(user=user)
+            can_afford = resurces.gold + total
+
+            if can_afford >= 0:
+                return args
+            else:
+                raise ValidationError({'error': 'Niewystarczająca ilość złota'})
+        
+        return args
+    
+    def create(self, validated_data):
+        transaction = models.Transaction.objects.create(**validated_data)
+        user = self.context.get('request').user
+        resources = models.Resources.objects.get(user=user)
+        resources.gold += validated_data['totalAmount']
+        resources.save()
+        
+        return models.Transaction.objects.create(**validated_data)
+    
+    def update(self, instance, validated_data):
+        instance.save()
+        return instance
