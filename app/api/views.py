@@ -163,9 +163,9 @@ class StoreViewSet(BaseViewSet):
         potions = models.StorePotion.objects.filter(store=pk)
         collectable = models.StoreCollectableItem.objects.filter(store=pk)
 
-        item_serializer = self.serializer_classes['items'](items, many=True)
-        potion_serializer = self.serializer_classes['potions'](potions, many=True)
-        collectable_serializer = self.serializer_classes['collectableItems'](collectable, many=True)
+        item_serializer = self.serializer_classes['items'](items, many=True, context={'request': request})
+        potion_serializer = self.serializer_classes['potions'](potions, many=True, context={'request': request})
+        collectable_serializer = self.serializer_classes['collectableItems'](collectable, many=True, context={'request': request})
 
         data = {
             'items': item_serializer.data,
@@ -190,6 +190,11 @@ class StoreItemViewSet(BaseViewSet):
 class StoreItemDetailViewSet(BaseViewSet):
     serializer_class = serializers.StoreItemSerializer
     queryset = models.StoreItem
+    parser_classes = (MultiPartParser, FormParser)
+
+    
+    def perform_create(self, serializer):
+        serializer.save(creator=self.request.user)
 
 class InventoryViewSet(BaseViewSet):
     serializer_class = serializers.UserItemsSerializer
@@ -201,20 +206,24 @@ class InventoryViewSet(BaseViewSet):
     queryset = models.UserItems.objects.all()
     parser_classes = (MultiPartParser, FormParser)
 
+    def get_queryset(self):
+        user = self.request.user
+        return models.UserItems.objects.filter(user=user)
+
     def perform_create(self, serializer):
         serializer.save(creator=self.request.user)
 
     
 
-    def list(self, reqeust):
-        user = reqeust.user
+    def list(self, request):
+        user = request.user
         items = models.UserItems.objects.filter(user=user)
         potions = models.UserPotions.objects.filter(user=user)
         collectable = models.UserCollectableItem.objects.filter(user=user)
     
-        item_serializer = self.serializer_classes['items'](items, many=True)
-        potion_serializer = self.serializer_classes['potions'](potions, many=True)
-        collectable_serializer = self.serializer_classes['collectableItems'](collectable, many=True)
+        item_serializer = self.serializer_classes['items'](items, many=True, context={'request': request})
+        potion_serializer = self.serializer_classes['potions'](potions, many=True, context={'request': request})
+        collectable_serializer = self.serializer_classes['collectableItems'](collectable, many=True, context={'request': request})
 
         data = {
             'items': item_serializer.data,
@@ -222,4 +231,17 @@ class InventoryViewSet(BaseViewSet):
             'collectableItems': collectable_serializer.data
         }
 
-        return Response(data)
+        return Response(data, status=status.HTTP_200_OK)
+    
+
+class TransactionViewSet(BaseViewSet):
+    serializer_class = serializers.TransactionSerializer
+    queryset = models.Transaction.objects.all()
+
+    def create(self, request):
+        serializer = serializers.TransactionSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        
+        return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
