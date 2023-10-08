@@ -135,6 +135,7 @@ class Item(models.Model):
     magicResist = models.IntegerField(default=0)
     health = models.IntegerField(default=0)
     damage = models.IntegerField(default=0)
+    goldValue = models.IntegerField(default=0)
     imageUrl = models.ImageField(upload_to=upload_to, blank=True, null=True)
 
     def __str__(self):
@@ -314,3 +315,11 @@ class Fight(models.Model):
     currentPlayerHP = models.IntegerField()
     currentEnemyHP = models.IntegerField()
     isActive = models.BooleanField(default=False)
+
+
+class Transaction(models.Model):
+    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    store = models.ForeignKey(Store, on_delete=models.CASCADE)
+    totalAmount = models.IntegerField()
+    date = models.DateTimeField(default=timezone.now)
+    
