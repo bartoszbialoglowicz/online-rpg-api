@@ -73,7 +73,14 @@ class AuthTokenSerializer(serializers.Serializer):
         return attrs
 
 
+class UserLvlSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.UserLvl
+        fields = ('lvl', 'expPoints')
+
+
 class ResourcesSerializer(serializers.ModelSerializer):
+    lvl = UserLvlSerializer(many=False)
     class Meta:
         model = models.Resources
         fields = '__all__'
@@ -238,10 +245,14 @@ class TransactionSerializer(serializers.ModelSerializer):
             resurces = models.Resources.objects.get(user=user)
             can_afford = resurces.gold + total
 
-            if can_afford >= 0:
-                return args
-            else:
+            if can_afford < 0:
                 raise ValidationError({'error': 'Niewystarczająca ilość złota'})
+            
+        for item in itemsSell:
+            models.UserItems.objects.get(user=user, id=item).delete()
+        for item in itemsBuy:
+            itemId = models.StoreItem.objects.get(id=item).item.id
+            models.UserItems.objects.create(user=user, item=models.Item.objects.get(id=itemId))
         
         return args
     
@@ -251,7 +262,6 @@ class TransactionSerializer(serializers.ModelSerializer):
         resources = models.Resources.objects.get(user=user)
         resources.gold += validated_data['totalAmount']
         resources.save()
-        
         return models.Transaction.objects.create(**validated_data)
     
     def update(self, instance, validated_data):
