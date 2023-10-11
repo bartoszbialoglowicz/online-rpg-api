@@ -1,4 +1,5 @@
 import sys
+from typing import Any
 from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
 from rest_framework.exceptions import ValidationError
@@ -66,15 +67,34 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     objects = CustomUserManager()
 
 
+class UserLvl(models.Model):
+    lvl = models.IntegerField(unique=True)
+    expPoints = models.IntegerField()
+
+
 class Resources(models.Model):
     """Resources model for user"""
     user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE)
     gold = models.IntegerField(default=100)
-    lvl = models.IntegerField(default=1)
+    lvl = models.ForeignKey(UserLvl, on_delete=models.CASCADE, default=1)
     exp = models.IntegerField(default=0)
 
     def __str__(self):
         return str(self.user.name)
+    
+    def add_exp(self, exp_points):
+        current_lvl = self.lvl.lvl
+        current_exp = self.exp + exp_points
+        
+        while current_exp >= UserLvl.objects.get(lvl=current_lvl).expPoints:
+            current_exp = current_exp - UserLvl.objects.get(lvl=current_lvl).expPoints
+            current_lvl = current_lvl+1
+
+        self.lvl = UserLvl.objects.get(lvl=current_lvl)
+        self.exp = current_exp
+
+        self.save()
+
 
     @receiver(post_save, sender=get_user_model())
     def create_resource(sender, instance, created, **kwargs):
@@ -157,6 +177,16 @@ class UserItems(models.Model):
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     item = models.ForeignKey(Item, on_delete=models.CASCADE)
 
+    def delete(self):
+        eqItem = CharacterItem.objects.get(slot=self.item.itemType, character=self.user.character)
+        if eqItem.item is not None:
+            if eqItem.item.id == self.item.id:
+                Character.objects.get(user=self.user).remove_equipped_item_stats(self.item.itemType)
+                item = CharacterItem.objects.get(character=self.user.character, slot=self.item.itemType)
+                item.item = None
+                item.save()
+        return super().delete()
+
     def __str__(self):
         return (f'[{self.user.name}] {self.item.name }')
 
@@ -226,6 +256,7 @@ class Enemy(models.Model):
     magicResist = models.IntegerField()
     damage = models.IntegerField()
     lvl = models.IntegerField()
+    exp = models.IntegerField(default=10)
 
     def __str__(self):
         return self.name
