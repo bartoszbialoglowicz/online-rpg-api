@@ -2,6 +2,7 @@ from api import models
 import random
 
 class Fight:
+
     def normal_attack(user: models.Character, enemy: models.Enemy, user_turn: bool):
         user_stats = user
         enemy_stats = enemy
@@ -29,3 +30,7 @@ class Fight:
                 return [loot.item.name, strike]
         
         return ['null', strike]
+    
+    def get_exp(enemy: models.Enemy):
+        return enemy.exp
+
