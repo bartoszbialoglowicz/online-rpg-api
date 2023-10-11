@@ -32,11 +32,24 @@ class CombatSystemConsumer(WebsocketConsumer):
             self.send(text_data=json.dumps({'character': model_to_dict(self.user)}))
             self.send(text_data=json.dumps({'enemy': model_to_dict(self.enemy)}))
             if self.enemy.hp <= 0:
+                # Get item loot
                 loot = Fight.get_loot(self.enemy)
+                # Add exp to resurces model
+                models.Resources.objects.get(user=self.user.user).add_exp(exp)
+                # Get new user's lvl
+                lvl = models.Resources.objects.get(user=self.user.user).lvl.lvl
+                # Get user's current lvl exp needed to next lvl
+                expPoints = models.UserLvl.objects.get(lvl=lvl).expPoints
+                # Get user's current exp points
+                exp = models.Resources.objects.get(user=self.user.user).exp
+                # Send messege back to user
                 self.send(text_data=json.dumps({
                     'message': 'You won the fight',
                     'fightIsOver': True,
                     'loot': loot[0],
+                    'exp': exp,
+                    'lvl': lvl,
+                    'expPoints': expPoints,
                     'strike': loot[1]
                 }))
                 self.close()
