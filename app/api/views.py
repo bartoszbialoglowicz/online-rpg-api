@@ -9,6 +9,9 @@ from rest_framework.decorators import action
 from rest_framework.parsers import MultiPartParser, FormParser
 from api import models
 from api import serializers
+from api.utils import dijkstra
+
+from django.utils import timezone
 
 
 class BaseViewSet(viewsets.GenericViewSet,
@@ -137,7 +140,49 @@ class EnemyLootViewSet(BaseViewSet):
 class LocationViewSet(BaseViewSet):
     serializer_class = serializers.LocationSerializer
     queryset = models.Location.objects.all()
-    http_method_names = ['get']
+    http_method_names = ['get', 'post']
+
+    @action(detail=False, methods=['POST'], url_path="travel")
+    def travel(self, request):
+        user = request.user
+        user_location = models.UserLocation.objects.get(user=user).location
+        target_location_id = request.data.get("target_location_id")
+
+        if not target_location_id:
+            return Response({'error': "Target location id is required"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            target_location = models.Location.objects.get(pk=target_location_id)
+        except models.Location.DoesNotExist:
+            return Response({'error': "Target location not found"})
+        
+        adjacency_map = self.build_adjacency_map()
+        time, path = dijkstra(adjacency_map, (user_location.xCoordinate, user_location.yCoordinate), (target_location.xCoordinate, target_location.yCoordinate))
+
+        if time == float('inf'):
+            return Response({'error': "No path found"}, status=status.HTTP_400_BAD_REQUEST)
+
+        locations = []
+        for item in path:
+            locations.append(models.Location.get_location_by_coordinates(item[0], item[1]).name)
+
+        print(request.data.get("time"))
+        print(timezone.now())
+        travel_end_datetime, start_travel_time = models.UserLocation.objects.get(user=user).update_travel_time(time)
+
+        return Response({'travelTime': time, "path": locations, 'travelEndDatetime': travel_end_datetime, 'travelStartTime': start_travel_time})
+    
+    def build_adjacency_map(self):
+        adjacency_map = {}
+        locations = models.Location.objects.all()
+
+        for location in locations:
+            neighbors = models.Location.get_neighboring_locations(location)
+            adjacency_map[(location.xCoordinate, location.yCoordinate)] = [
+                (neighbor.xCoordinate, neighbor.yCoordinate) for neighbor in neighbors
+            ]
+        return adjacency_map
+        
 
 
 class UserLocationViewSet(BaseViewSet):
