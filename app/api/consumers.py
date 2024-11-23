@@ -30,24 +30,23 @@ class CombatSystemConsumer(WebsocketConsumer):
         if 'action' in message and message['action'] == 'user_attack':
             self.user, self.enemy = Fight.normal_attack(self.user, self.enemy, True)
             self.send(text_data=json.dumps({'character': model_to_dict(self.user)}))
-            self.send(text_data=json.dumps({'enemy': model_to_dict(self.enemy)}))
-            if self.enemy.hp <= 0:
+            print(model_to_dict(self.enemy, exclude=['imgSrc']))
+            self.send(text_data=json.dumps({'enemy': model_to_dict(self.enemy, exclude=['imgSrc'])}))
+            if self.enemy.health <= 0:
                 # Get item loot
                 loot = Fight.get_loot(self.enemy)
                 # Add exp to resurces model
-                models.Resources.objects.get(user=self.user.user).add_exp(exp)
+                models.Resources.objects.get(user=self.user.user).add_exp(self.enemy.exp)
                 # Get new user's lvl
                 lvl = models.Resources.objects.get(user=self.user.user).lvl.lvl
                 # Get user's current lvl exp needed to next lvl
                 expPoints = models.UserLvl.objects.get(lvl=lvl).expPoints
-                # Get user's current exp points
-                exp = models.Resources.objects.get(user=self.user.user).exp
                 # Send messege back to user
                 self.send(text_data=json.dumps({
                     'message': 'You won the fight',
                     'fightIsOver': True,
                     'loot': loot[0],
-                    'exp': exp,
+                    'exp': self.enemy.exp,
                     'lvl': lvl,
                     'expPoints': expPoints,
                     'strike': loot[1]
@@ -57,7 +56,7 @@ class CombatSystemConsumer(WebsocketConsumer):
         if 'action' in message and message['action'] == 'enemy_attack':
             self.user, self.enemy = Fight.normal_attack(self.user, self.enemy, False)
             self.send(text_data=json.dumps({'character': model_to_dict(self.user)}))
-            self.send(text_data=json.dumps({'enemy': model_to_dict(self.enemy)}))
+            self.send(text_data=json.dumps({'enemy': model_to_dict(self.enemy, exclude=['imgSrc'])}))
             if self.user.health <= 0:
                 self.send(text_data=json.dumps({
                     'message': 'You lost the fight',
