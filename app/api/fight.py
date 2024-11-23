@@ -11,7 +11,7 @@ class Fight:
             dmg = user_stats.damage - enemy_stats.armor
             if enemy_stats.armor > user_stats.damage:
                 dmg = 0
-            enemy_stats.hp = enemy_stats.hp - dmg
+            enemy_stats.health = enemy_stats.health - dmg
         else:
             dmg = enemy_stats.damage - user_stats.armor
             if user_stats.armor > enemy_stats.damage:
