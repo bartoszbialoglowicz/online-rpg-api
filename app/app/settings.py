@@ -27,20 +27,17 @@ SECRET_KEY = 'django-insecure-_je7lgqb8t-!w&z$+mmp*vll5%j6kgmmz47^-4-nmnp8(4ocq_
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    '192.168.0.143',
-    '192.168.0.66',
-    '127.0.0.1',
-    '192.168.100.15'
+    '127.0.0.1'
 ]
 
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000',
-    'http://192.168.0.66:3000',
-    'http://192.168.100.15:3000'
+    'http://127.0.0.1:3000',
+    'http://localhost:3000'
 ]
 # Application definition
 
 INSTALLED_APPS = [
+    'api',
     'channels',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -48,10 +45,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    "corsheaders",
     'rest_framework',
     'rest_framework.authtoken',
-    "corsheaders",
-    'api',
 ]
 
 ASGI_APPLICATION = 'app.asgi.application'
@@ -147,7 +143,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.BasicAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
+        #'rest_framework.authentication.SessionAuthentication',
     ]
 }
 
