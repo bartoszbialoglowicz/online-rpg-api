@@ -1,15 +1,14 @@
-import sys
-from typing import Any
 from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
 from rest_framework.exceptions import ValidationError
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.contrib.auth.models import BaseUserManager
-from django.db.models.signals import post_save, pre_delete
+from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+from datetime import timedelta
 
 
 ITEM_TYPES = [
@@ -71,6 +70,13 @@ class UserLvl(models.Model):
     lvl = models.IntegerField(unique=True)
     expPoints = models.IntegerField()
 
+    def create_default_lvl():
+        try:
+            lvl = UserLvl.objects.get(lvl=1)
+        except UserLvl.DoesNotExist:
+            lvl = UserLvl.objects.create(lvl=1, expPoints=100)
+        return lvl
+
 
 class Resources(models.Model):
     """Resources model for user"""
@@ -99,7 +105,7 @@ class Resources(models.Model):
     @receiver(post_save, sender=get_user_model())
     def create_resource(sender, instance, created, **kwargs):
         if created:
-            Resources.objects.create(user=instance)
+            Resources.objects.create(user=instance, lvl=UserLvl.create_default_lvl())
 
 
 class Character(models.Model):
@@ -251,12 +257,15 @@ class CharacterItem(models.Model):
 
 class Enemy(models.Model):
     name = models.CharField(max_length=255)
-    hp = models.IntegerField()
+    health = models.IntegerField()
     armor = models.IntegerField()
     magicResist = models.IntegerField()
     damage = models.IntegerField()
     lvl = models.IntegerField()
     exp = models.IntegerField(default=10)
+    imgSrc = models.ImageField(blank=True, null=True, upload_to=upload_to)
+
+    
 
     def __str__(self):
         return self.name
@@ -277,17 +286,49 @@ class EnemyLoot(models.Model):
 
 class Region(models.Model):
     name = models.CharField(max_length=100)
+    description = models.TextField()
 
     def __str__(self):
         return self.name
+    
+    def create_default_region():
+        try:
+            region = Region.objects.get(name="Default")
+        except:
+            region = Region.objects.create(name="Default", description="Default")
+        return region
+    
 
 class Location(models.Model):
     name = models.CharField(max_length=100)
     region = models.ForeignKey(Region, on_delete=models.CASCADE, default=1)
     lvlRequired = models.IntegerField()
+    description = models.TextField()
+    imageUrl = models.ImageField(upload_to=upload_to, blank=True, null=True)
+    xCoordinate = models.IntegerField()
+    yCoordinate = models.IntegerField()
 
     def __str__(self):
         return (f'[{self.region}] {self.name}')
+    
+    def get_or_create_default_location():
+        try:
+            location = Location.objects.get(name="Przełęcz Mroźnego Wiatru")
+        except:
+            location = Location.objects.create(name="Default", region=Region.create_default_region(), lvlRequired=1, description="test")
+        return location
+    
+    def get_neighboring_locations(location):
+        return Location.objects.exclude(pk=location.pk).filter(
+            (models.Q(xCoordinate=location.xCoordinate - 1) & models.Q(yCoordinate=location.yCoordinate)) |
+            (models.Q(xCoordinate=location.xCoordinate + 1) & models.Q(yCoordinate=location.yCoordinate)) |
+            (models.Q(xCoordinate=location.xCoordinate) & models.Q(yCoordinate=location.yCoordinate - 1)) |
+            (models.Q(xCoordinate=location.xCoordinate) & models.Q(yCoordinate=location.yCoordinate + 1))
+        )
+    
+    def get_location_by_coordinates(x, y):
+        return Location.objects.get(xCoordinate=x, yCoordinate=y)
+    
 
 class Store(models.Model):
     STORE_TYPES = [
@@ -330,15 +371,37 @@ class LocationEnemy(models.Model):
 class UserLocation(models.Model):
     location = models.ForeignKey(Location, on_delete=models.SET_DEFAULT, default=1)
     user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE)
+    travelTime = models.DateTimeField(default=timezone.now())
+    startTravelTime = models.DateTimeField(default=timezone.now())
 
     def __str__(self):
         return (f'{self.user} - {self.location}')
 
+
     @receiver(post_save, sender=get_user_model())
     def create_user_location(sender, instance, created, **kwargs):
         if created:
-            UserLocation.objects.create(user=instance)
+            UserLocation.objects.create(user=instance, location=Location.get_or_create_default_location())
 
+    def can_move(self):
+        return timezone.now() >= self.travelTime
+
+    def update_travel_time(self, seconds):
+        self.travelTime = timezone.now() + timedelta(seconds=seconds)
+        self.startTravelTime = timezone.now()
+        self.save()
+        return self.travelTime, self.startTravelTime
+    
+    def update_user_location(self, location_id):
+        try:
+            target_location = Location.objects.get(pk=location_id)
+        except Location.DoesNotExist:
+            raise ValidationError({'location': "User can not travel to location that does not exist!"})
+        
+        self.location = target_location
+        self.save()
+        return self.location
+            
 
 class Fight(models.Model):
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
