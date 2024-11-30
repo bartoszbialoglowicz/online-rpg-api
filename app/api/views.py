@@ -72,6 +72,18 @@ class CharacterViewSet(BaseViewSet):
 
     def get_queryset(self):
         return models.Character.objects.filter(user=self.request.user)
+    
+    @action(detail=False, methods=['GET'], url_path='get_all_stats')
+    def get_all_stats(self, request):
+        character = models.Character.objects.get(user=request.user)
+        items_stats = character.get_item_stats()
+        character_data = self.serializer_class(character).data
+        response_data = Response({
+            'baseStats': character_data,
+            'itemStats': items_stats
+        })
+
+        return response_data
 
 
 class ItemViewSet(BaseViewSet):
@@ -102,10 +114,8 @@ class CharacterItemViewSet(BaseViewSet):
         item = request.data.get('item')
         if item:
             new_item = models.Item.objects.get(id=item)
-            character.replace_equipped_item_stats(new_item, slot)
             character_item.item = new_item
         else:
-            character.remove_equipped_item_stats(slot)
             character_item.item = None
 
         character_item.save()

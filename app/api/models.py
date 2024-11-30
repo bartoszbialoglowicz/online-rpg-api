@@ -118,35 +118,16 @@ class Character(models.Model):
     def __str__(self):
         return str(self.user.name)
     
-    # Remove current item stats from Character model
-    def remove_equipped_item_stats(self, item_slot):
-        try:
-            character_item = CharacterItem.objects.get(character=self, slot=item_slot)
-            if character_item.item is not None:
-                self.armor -= character_item.item.armor
-                self.magicResist -= character_item.item.magicResist
-                self.health -= character_item.item.health
-                self.damage -= character_item.item.damage
+    def get_item_stats(self):
+        equipped_items = CharacterItem.objects.filter(character=self).select_related('item')
+        item_stats = {
+            'armor': sum(item.item.armor for item in equipped_items if item.item),
+            'magicResist': sum(item.item.magicResist for item in equipped_items if item.item),
+            'health': sum(item.item.health for item in equipped_items if item.item),
+            'damage': sum(item.item.damage for item in equipped_items if item.item),
+        }
 
-            self.save()
-
-        except CharacterItem.DoesNotExist:
-            pass
-
-    # Replace current item stats with other item stats
-    def replace_equipped_item_stats(self, item, slot):
-        try:
-            self.remove_equipped_item_stats(slot)
-            new_item = item
-            self.armor += new_item.armor
-            self.magicResist += new_item.magicResist
-            self.health += new_item.health
-            self.damage += new_item.damage
-
-            self.save()
-
-        except CharacterItem.DoesNotExist or Item.DoesNotExist:
-            pass
+        return item_stats
 
     @receiver(post_save, sender=get_user_model())
     def create_character(sender, instance, created, **kwargs):
@@ -330,6 +311,15 @@ class Location(models.Model):
         return Location.objects.get(xCoordinate=x, yCoordinate=y)
     
 
+class NPC(models.Model):
+    name = models.CharField(max_length=100)
+    location = models.ForeignKey(Location, on_delete=models.CASCADE)
+    imageUrl = models.ImageField()
+
+    def __str__(self):
+        return (f'{self.name} [{self.location.name}]')
+
+
 class Store(models.Model):
     STORE_TYPES = [
         ('weapon', 'weapon'),
@@ -338,9 +328,20 @@ class Store(models.Model):
     location = models.ForeignKey(Location, on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
     type = models.CharField(max_length=64, choices=STORE_TYPES)
+    npc = models.ForeignKey(NPC, on_delete=models.CASCADE)
+
+    def clean(self):
+        if not self.npc.location.pk == self.location.pk:
+            raise ValidationError({'location': 'Provided location has to be the same as npc location.'})
+        
+    def save(self, *args, **kwargs):
+        self.clean()
+        return super().save(*args, **kwargs)
+
 
     def __str__(self):
         return (f'{self.location} - {self.name}')
+    
 
 
 class StoreItem(models.Model):

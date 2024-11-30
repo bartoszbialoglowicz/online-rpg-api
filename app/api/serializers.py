@@ -89,7 +89,7 @@ class ResourcesSerializer(serializers.ModelSerializer):
 class CharacterSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Character
-        fields = '__all__'
+        fields = ('armor', 'magicResist', 'health', 'damage')
 
 
 class ItemSerializer(serializers.ModelSerializer):
