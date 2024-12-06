@@ -20,6 +20,13 @@ ITEM_TYPES = [
     ('weapon', 'weapon')
 ]
 
+ITEM_RARITY = [
+    ('common', 'common'),
+    ('rare', 'rare'),
+    ('mythic', 'mythic'),
+    ('legendary', 'legendary')
+]
+
 def upload_to(instance, filename):
     return 'images/{filename}'.format(filename=filename)
 
@@ -112,6 +119,8 @@ class Character(models.Model):
     user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE)
     armor = models.IntegerField(default=0)
     magicResist = models.IntegerField(default=0)
+    criticalHitChance = models.DecimalField(default=0.05, max_digits=5, decimal_places=2)
+    criticalHitDamage = models.DecimalField(default=1.5, max_digits=5, decimal_places=2)
     health = models.IntegerField(default=100)
     damage = models.IntegerField(default=10)
 
@@ -142,8 +151,11 @@ class Item(models.Model):
     magicResist = models.IntegerField(default=0)
     health = models.IntegerField(default=0)
     damage = models.IntegerField(default=0)
+    criticalHitChance = models.DecimalField(default=0, max_digits=5, decimal_places=2)
+    criticalHitDamage = models.DecimalField(default=0, max_digits=5, decimal_places=2)
     goldValue = models.IntegerField(default=0)
     imageUrl = models.ImageField(upload_to=upload_to, blank=True, null=True)
+    rarity = models.CharField(max_length=32, choices=ITEM_RARITY)
 
     def __str__(self):
         return self.name
@@ -242,6 +254,8 @@ class Enemy(models.Model):
     armor = models.IntegerField()
     magicResist = models.IntegerField()
     damage = models.IntegerField()
+    criticalHitChance = models.DecimalField(default=0.05, max_digits=5, decimal_places=2)
+    criticalHitDamage = models.DecimalField(default=1.5, max_digits=5, decimal_places=2)
     lvl = models.IntegerField()
     exp = models.IntegerField(default=10)
     imgSrc = models.ImageField(blank=True, null=True, upload_to=upload_to)
