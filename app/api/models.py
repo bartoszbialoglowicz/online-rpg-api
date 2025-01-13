@@ -305,8 +305,8 @@ class Location(models.Model):
     lvlRequired = models.IntegerField()
     description = models.TextField()
     imageUrl = models.ImageField(upload_to=upload_to, blank=True, null=True)
-    xCoordinate = models.IntegerField()
-    yCoordinate = models.IntegerField()
+    xCoordinate = models.IntegerField(default=0)
+    yCoordinate = models.IntegerField(default=0)
 
     def __str__(self):
         return (f'[{self.region}] {self.name}')
