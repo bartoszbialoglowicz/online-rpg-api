@@ -72,6 +72,18 @@ class CharacterViewSet(BaseViewSet):
 
     def get_queryset(self):
         return models.Character.objects.filter(user=self.request.user)
+    
+    @action(detail=False, methods=['GET'], url_path='get_all_stats')
+    def get_all_stats(self, request):
+        character = models.Character.objects.get(user=request.user)
+        items_stats = character.get_item_stats()
+        character_data = self.serializer_class(character).data
+        response_data = Response({
+            'baseStats': character_data,
+            'itemStats': items_stats
+        })
+
+        return response_data
 
 
 class ItemViewSet(BaseViewSet):
@@ -97,15 +109,16 @@ class CharacterItemViewSet(BaseViewSet):
             character = models.Character.objects.get(user=self.request.user)
             character_item = models.CharacterItem.objects.get(character=character, slot=slot)
         except models.CharacterItem.DoesNotExist:
-            return Response({'error': 'Character item not found'})
+            return Response({'error': 'Character item not found'}, status=status.HTTP_400_BAD_REQUEST)
         
         item = request.data.get('item')
         if item:
             new_item = models.Item.objects.get(id=item)
-            character.replace_equipped_item_stats(new_item, slot)
+            if new_item.lvlRequired > models.Resources.objects.get(user=self.request.user).lvl.lvl:
+                print('A')                         
+                return Response({'error': 'This item requires higher lvl'}, status=status.HTTP_400_BAD_REQUEST)
             character_item.item = new_item
         else:
-            character.remove_equipped_item_stats(slot)
             character_item.item = None
 
         character_item.save()
