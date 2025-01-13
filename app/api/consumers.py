@@ -1,6 +1,5 @@
 import json
 from channels.generic.websocket import WebsocketConsumer
-from django.forms.models import model_to_dict
 
 from api import models
 from api import serializers
@@ -17,6 +16,7 @@ class CombatSystemConsumer(WebsocketConsumer):
             self.lvl = None
             self.expPoints = None
             self.exp = None
+            self.gained_exp = 0
             self.fightInfo = Fight()
             self.accept()
 
@@ -44,6 +44,12 @@ class CombatSystemConsumer(WebsocketConsumer):
             self.winner = False
             self.handle_fight_end()
 
+    def handle_loot(self):
+        self.loot = Fight.get_loot(self.enemy)
+        if self.loot:
+            models.UserItems.add_item(self.loot['id'], self.user.user.pk)
+
+
     def update_user_lvl(self):
         models.Resources.objects.get(user=self.user.user).add_exp(self.enemy.exp)
         self.lvl = models.Resources.objects.get(user=self.user.user).lvl.lvl
@@ -54,27 +60,31 @@ class CombatSystemConsumer(WebsocketConsumer):
 
     def handle_fight_end(self):
         if self.winner:
-            self.loot = Fight.get_loot(self.enemy)
+            self.handle_loot()
             self.update_user_lvl()
+
         
         self.send_fight_data()
         self.close()
 
     def send_character_update(self):
-        self.send(text_data=json.dumps({'character': serializers.CharacterSerializer(self.user).data, 'criticalHit': self.fightInfo.last_strike_critical}))
+        self.send(text_data=json.dumps({'character': serializers.CharacterSerializer(self.user).data, 'criticalHit': self.fightInfo.last_strike_critical, 'enemyDamageDealt': self.fightInfo.damage_dealt}))
     
     def send_enemy_update(self):
-        self.send(text_data=json.dumps({'enemy': serializers.EnemySerializer(self.enemy).data, 'criticalHit': self.fightInfo.last_strike_critical}))
+        self.send(text_data=json.dumps({'enemy': serializers.EnemySerializer(self.enemy).data, 'criticalHit': self.fightInfo.last_strike_critical, 'userDamageDealt': self.fightInfo.damage_dealt}))
 
     def send_fight_data(self):
-        msg = "You won the fight" if self.winner else "You lost the fight"
+        msg = "Wygrałeś walkę! Zdobyto " + str(self.enemy.exp) + " punktów doświadczenia." \
+            if self.winner else "Przegrałeś walkę."
+        msgShort = "Wygrałeś walkę!" if self.winner else "Przegrałeś walkę."
         self.send(text_data=json.dumps({
             'message': msg,
             'fightIsOver': True,
             'loot': self.loot,
             'exp': self.exp,
             'lvl': self.lvl,
-            'expPoints': self.expPoints
+            'expPoints': self.expPoints,
+            'messageShort':  msgShort
         }))
 
     def receive(self, text_data):
@@ -89,7 +99,7 @@ class CombatSystemConsumer(WebsocketConsumer):
 
         if 'type' in message and message['type'] == 'set_user':
             user_id = models.CustomUser.objects.get(email=message['userEmail'])
-            self.user = models.Character.objects.get(user=user_id)
+            self.user = models.Character.objects.get(user=user_id).get_character_object_with_item_stats()
 
         if 'action' in message and message['action'] == 'user_attack':
             if self.userTurnDone:
