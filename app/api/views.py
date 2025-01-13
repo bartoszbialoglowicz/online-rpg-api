@@ -109,11 +109,14 @@ class CharacterItemViewSet(BaseViewSet):
             character = models.Character.objects.get(user=self.request.user)
             character_item = models.CharacterItem.objects.get(character=character, slot=slot)
         except models.CharacterItem.DoesNotExist:
-            return Response({'error': 'Character item not found'})
+            return Response({'error': 'Character item not found'}, status=status.HTTP_400_BAD_REQUEST)
         
         item = request.data.get('item')
         if item:
             new_item = models.Item.objects.get(id=item)
+            if new_item.lvlRequired > models.Resources.objects.get(user=self.request.user).lvl.lvl:
+                print('A')                         
+                return Response({'error': 'This item requires higher lvl'}, status=status.HTTP_400_BAD_REQUEST)
             character_item.item = new_item
         else:
             character_item.item = None
