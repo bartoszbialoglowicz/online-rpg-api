@@ -20,7 +20,7 @@ class UserSerializer(serializers.ModelSerializer):
                 'validators': [
                     UniqueValidator(
                         queryset=get_user_model().objects.all(),
-                        message="Provided email is already in use."
+                        message="Istnieje już konto o podanym adresie e-mail."
                     ),
                 ]
             },
@@ -28,7 +28,7 @@ class UserSerializer(serializers.ModelSerializer):
                 'validators': [
                     UniqueValidator(
                         queryset=get_user_model().objects.all(),
-                        message="Provided nickname is already in use."
+                        message="Istnieje już konto z podaną nazwą uzytkownika."
                     ),
                 ]
             }
@@ -172,7 +172,13 @@ class UserLocationSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class NPCSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.NPC
+        fields = '__all__'
+
 class StoreSerializer(serializers.ModelSerializer):
+    npc = NPCSerializer(many=False, read_only=True)
     class Meta:
         model = models.Store
         fields = '__all__'
@@ -230,7 +236,7 @@ class TransactionSerializer(serializers.ModelSerializer):
             try:
                 sum1 += models.UserItems.objects.filter(user=user).get(id=item).item.goldValue
             except models.UserItems.DoesNotExist:
-                raise ValidationError({'error': 'Podano nieprawidłowe id przedmiotów użytkonikwa'})
+                raise ValidationError({'error': 'Podano nieprawidłowe id przedmiotów użytkownika'})
         # Sum values of items that user is going to buy
         for i, item in enumerate(itemsBuy):
             try: 
