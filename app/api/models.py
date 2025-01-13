@@ -65,6 +65,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     is_superuser = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
+    is_new = models.BooleanField(default=True)
     date_joined = models.DateField(default=timezone.now)
 
     USERNAME_FIELD = 'email'
@@ -134,9 +135,24 @@ class Character(models.Model):
             'magicResist': sum(item.item.magicResist for item in equipped_items if item.item),
             'health': sum(item.item.health for item in equipped_items if item.item),
             'damage': sum(item.item.damage for item in equipped_items if item.item),
+            'criticalHitChance': sum(item.item.criticalHitChance for item in equipped_items if item.item),
+            'criticalHitDamage': sum(item.item.criticalHitDamage for item in equipped_items if item.item)
         }
 
         return item_stats
+    
+    def get_character_object_with_item_stats(self):
+        item_stats = self.get_item_stats()
+        return Character(
+            armor=self.armor + item_stats['armor'],
+            magicResist=self.magicResist + item_stats['magicResist'],
+            health=self.health + item_stats['health'],
+            damage=self.damage + item_stats['damage'],
+            criticalHitChance=self.criticalHitChance + item_stats['criticalHitChance'],
+            criticalHitDamage=self.criticalHitDamage + item_stats['criticalHitDamage'],
+            user=self.user,
+            pk=self.pk
+        )
 
     @receiver(post_save, sender=get_user_model())
     def create_character(sender, instance, created, **kwargs):
@@ -156,6 +172,7 @@ class Item(models.Model):
     goldValue = models.IntegerField(default=0)
     imageUrl = models.ImageField(upload_to=upload_to, blank=True, null=True)
     rarity = models.CharField(max_length=32, choices=ITEM_RARITY)
+    lvlRequired = models.IntegerField(default=1)
 
     def __str__(self):
         return self.name
@@ -185,6 +202,20 @@ class UserItems(models.Model):
                 item.item = None
                 item.save()
         return super().delete()
+    
+    def add_item(item_id, user_pk):
+        try:
+            item = Item.objects.get(pk=item_id)
+        except Item.DoesNotExist:
+            raise ValidationError({'item': "Provided item does not exists"})
+        
+        try:
+            user = CustomUser.objects.get(pk=user_pk)
+        except CustomUser.DoesNotExist:
+            raise ValidationError({'user': 'Provided user does not exists'})
+        
+        new_item = UserItems.objects.create(user=user, item=item)
+        new_item.save()
 
     def __str__(self):
         return (f'[{self.user.name}] {self.item.name }')
