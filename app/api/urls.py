@@ -19,6 +19,8 @@ router.register('store', views.StoreViewSet)
 router.register('storeitems', views.StoreItemViewSet)
 router.register('inventory', views.InventoryViewSet)
 router.register('transaction', views.TransactionViewSet)
+router.register('quests', views.UserQuestViewSet)
+router.register('dialogs', views.DialogViewSet)
 
 app_name = 'api'
 
