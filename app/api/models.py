@@ -4,6 +4,8 @@ from rest_framework.exceptions import ValidationError
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.contrib.auth.models import BaseUserManager
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
@@ -26,6 +28,34 @@ ITEM_RARITY = [
     ('mythic', 'mythic'),
     ('legendary', 'legendary')
 ]
+
+QUEST_PROGRESS = [
+    ('completed', 'completed'),
+    ('in_progress', 'in_progress'),
+    ('not_started', 'not_started')
+]
+
+QUEST_TYPE = [
+    ('main', 'main'),
+    ('side', 'side')
+]
+
+QUEST_TYPE_CHOICES = [
+    ('kill', 'Kill'),
+    ('collect', 'Collect'),
+    ('explore', 'Explore'),
+    ('talk', 'Talk'),
+]
+
+
+ELEMENT_TYPE_CHOICES = [
+    ("npc", "NPC"),
+    ("enemy", "Enemy"),
+    ("object", "Interactive Object"),
+    ("item", "Item"),
+    ("location", "Location"),
+]
+
 
 def upload_to(instance, filename):
     return 'images/{filename}'.format(filename=filename)
@@ -279,37 +309,6 @@ class CharacterItem(models.Model):
             CharacterItem.objects.create(character=instance, slot='trousers')
 
 
-class Enemy(models.Model):
-    name = models.CharField(max_length=255)
-    health = models.IntegerField()
-    armor = models.IntegerField()
-    magicResist = models.IntegerField()
-    damage = models.IntegerField()
-    criticalHitChance = models.DecimalField(default=0.05, max_digits=5, decimal_places=2)
-    criticalHitDamage = models.DecimalField(default=1.5, max_digits=5, decimal_places=2)
-    lvl = models.IntegerField()
-    exp = models.IntegerField(default=10)
-    imgSrc = models.ImageField(blank=True, null=True, upload_to=upload_to)
-
-    
-
-    def __str__(self):
-        return self.name
-
-
-class EnemyLoot(models.Model):
-    enemy = models.ForeignKey(Enemy, on_delete=models.CASCADE)
-    rarity = models.FloatField(
-        validators=[
-            MinValueValidator(0.0001),
-            MaxValueValidator(1.0000)
-        ]
-    )
-    item = models.ForeignKey(Item, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return self.enemy.name + ' [' +  self.item.name + ']'
-
 class Region(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField()
@@ -354,6 +353,85 @@ class Location(models.Model):
     
     def get_location_by_coordinates(x, y):
         return Location.objects.get(xCoordinate=x, yCoordinate=y)
+    
+
+class SubLocation(models.Model):
+    name = models.CharField(max_length=255)
+    description = models.TextField()
+    parent_location = models.ForeignKey(Location, on_delete=models.CASCADE, related_name="sublocations")
+    imageUrl = models.ImageField(upload_to="images/", blank=True, null=True)
+    
+    def __str__(self):
+        return f"{self.name} (w {self.parent_location.name})"
+
+
+class LocationElement(models.Model):
+    location = models.ForeignKey(
+        Location, null=True, blank=True, on_delete=models.CASCADE, related_name="elements"
+    )
+    sublocation = models.ForeignKey(
+        SubLocation, null=True, blank=True, on_delete=models.CASCADE, related_name="elements"
+    )
+    
+    type = models.CharField(max_length=10, choices=ELEMENT_TYPE_CHOICES)
+    npc = models.ForeignKey("NPC", null=True, blank=True, on_delete=models.SET_NULL)
+    enemy = models.ForeignKey("Enemy", null=True, blank=True, on_delete=models.SET_NULL)
+    item = models.ForeignKey("Item", null=True, blank=True, on_delete=models.SET_NULL)
+    location_element = models.ForeignKey("Location", null=True, blank=True, on_delete=models.SET_NULL)
+    sublocation_element = models.ForeignKey("SubLocation", null=True, blank=True, on_delete=models.SET_NULL)
+
+    position_x = models.IntegerField()
+    position_y = models.IntegerField()
+    description = models.TextField(blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        if self.location and self.sublocation:
+            raise ValueError("An item can only be assigned to one location (Location or SubLocation).")
+        if not self.location and not self.sublocation:
+            raise ValueError("An item must be assigned to Location or Sublocation")
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        prefix = self.location.name if self.location else self.sublocation.name
+        if self.npc:
+            return f"{prefix} -> {self.npc.name}"
+        elif self.enemy:
+            return f"{prefix} ->{self.enemy.name}"
+        elif self.location_element:
+            return f"{prefix} -> {self.location_element.name}"
+        elif self.sublocation_element:
+            return f"{prefix} -> {self.sublocation_element.name}"
+        return f"{self.type} ({self.id})"
+
+class Enemy(models.Model):
+    name = models.CharField(max_length=255)
+    health = models.IntegerField()
+    armor = models.IntegerField()
+    magicResist = models.IntegerField()
+    damage = models.IntegerField()
+    criticalHitChance = models.DecimalField(default=0.05, max_digits=5, decimal_places=2)
+    criticalHitDamage = models.DecimalField(default=1.5, max_digits=5, decimal_places=2)
+    lvl = models.IntegerField()
+    exp = models.IntegerField(default=10)
+    imgSrc = models.ImageField(blank=True, null=True, upload_to=upload_to)
+    location = models.ForeignKey(Location, on_delete=models.CASCADE, default=Location.get_or_create_default_location().pk)
+
+    def __str__(self):
+        return self.name
+
+
+class EnemyLoot(models.Model):
+    enemy = models.ForeignKey(Enemy, on_delete=models.CASCADE)
+    rarity = models.FloatField(
+        validators=[
+            MinValueValidator(0.0001),
+            MaxValueValidator(1.0000)
+        ]
+    )
+    item = models.ForeignKey(Item, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.enemy.name + ' [' +  self.item.name + ']'
     
 
 class NPC(models.Model):
@@ -462,4 +540,105 @@ class Transaction(models.Model):
     store = models.ForeignKey(Store, on_delete=models.CASCADE)
     totalAmount = models.IntegerField()
     date = models.DateTimeField(default=timezone.now)
+
+
+class Dialog(models.Model):
+    npc = models.ForeignKey(NPC, on_delete=models.CASCADE, related_name="dialogs")
+    content = models.TextField()
+    event_id = models.CharField(max_length=100, blank=True, null=True)
+    starter = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"Dialog by {self.npc.name}: {self.content[:50]}"
+
+
+class DialogOption(models.Model):
+    dialog = models.ForeignKey(Dialog, on_delete=models.CASCADE, related_name="options")
+    content = models.CharField(max_length=255)
+    next_dialog = models.ForeignKey(Dialog, on_delete=models.SET_NULL, blank=True, null=True, related_name="previous_options")
+    effects = models.JSONField(blank=True, null=True)
+
+    def __str__(self):
+        return f"Option for Dialog {self.dialog.id}: {self.content[:50]}"
+
+
+class StoryState(models.Model):
+    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name="story_states")
+    key = models.CharField(max_length=100)
+    value = models.JSONField()
+
+    class Meta:
+        unique_together = ('user', 'key')
+
+    def __str__(self):
+        return f"State for {self.user.username}: {self.key} = {self.value}"
+
+    @receiver(post_save, sender=get_user_model())
+    def create_story_state(sender, instance, created, **kwargs):
+        if created:
+            StoryState.objects.create(user=instance, key="initial_story", value={})
+
+
+class Quest(models.Model):
+    title = models.CharField(max_length=255)
+    type = models.CharField(max_length=10, choices=QUEST_TYPE, default='main')
+    description = models.TextField()
+    gold_reward = models.IntegerField(null=True, blank=True)
+    item_reward = models.ForeignKey('Item', null=True, blank=True, on_delete=models.SET_NULL)
+    exp_reward = models.IntegerField(default=0)
+
+    def __str__(self):
+        return self.title
+
+class QuestRequirement(models.Model):
+    quest = models.ForeignKey(Quest, related_name='requirements', on_delete=models.CASCADE)
+    type = models.CharField(max_length=10, choices=QUEST_TYPE_CHOICES)
+    amount = models.IntegerField(null=True, blank=True)
+    # Refers to the target object type
+    target_content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    # Refers to the target object id
+    target_object_id = models.PositiveIntegerField()
+    target = GenericForeignKey('target_content_type', 'target_object_id')
+    # Defines the position of the requirement in the quest
+    position = models.PositiveIntegerField(default=1)
+    # Defines which path it belongs to
+    path = models.PositiveIntegerField(default=1)
+    # Defines if the requirement ends the quersts
+    is_last = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.type} - {self.quest.title}"
+    
+
+class UserQuest(models.Model):
+    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    quest = models.ForeignKey(Quest, on_delete=models.CASCADE)
+    progress = models.CharField(max_length=20, choices=QUEST_PROGRESS, default='not_started')
+
+    @receiver(post_save, sender=get_user_model())
+    def create_user_quest(sender, instance, created, **kwargs):
+        if created:
+            for quest in Quest.objects.all():
+                UserQuest.objects.create(user=instance, quest=Quest.objects.get(pk=1))
+
+    def __str__(self):
+        return f"{self.user.name} - {self.quest.title}"
+
+
+class UserQuestRequirement(models.Model):
+    user_quest = models.ForeignKey(UserQuest, related_name='requirements', on_delete=models.CASCADE)
+    requirement = models.ForeignKey(QuestRequirement, on_delete=models.CASCADE)
+    progress = models.CharField(max_length=20, choices=QUEST_PROGRESS, default='not_started')
+    amount_progress = models.IntegerField(default=0)
+
+    # Create user quest requirements for specific quest whenever user starts a quest
+    @receiver(post_save, sender=UserQuest)
+    def create_user_quest_requirements(sender, instance, created, **kwargs):
+        if created:
+            for requirement in instance.quest.requirements.all():
+                progress = 'in_progress' if requirement.position == 1 else 'not_started'
+                UserQuestRequirement.objects.create(user_quest=instance, requirement=requirement, progress=progress)
+
+    def __str__(self):
+        return f"{self.user_quest.user.name} - {self.requirement.quest.title} ({self.requirement.type})"
     
