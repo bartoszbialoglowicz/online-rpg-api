@@ -4,10 +4,10 @@ from queue import Queue
 from django.db.models import Q
 from api.models import Location
 
-TIME_PER_LOCATION = 60
+TIME_PER_LOCATION = 5
 
 def calculate_shortets_travel_time(source_location, target_location):
-    time_per_location = 60
+    time_per_location = 5
 
     adjacency_map = create_adjacency_map()
 
