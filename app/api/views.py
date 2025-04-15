@@ -159,31 +159,48 @@ class LocationViewSet(BaseViewSet):
     def travel(self, request):
         user = request.user
         user_location = models.UserLocation.objects.get(user=user).location
+        is_sublocation = request.data.get("parent_location")
         target_location_id = request.data.get("target_location_id")
 
         if not target_location_id:
             return Response({'error': "Target location id is required"}, status=status.HTTP_400_BAD_REQUEST)
         
-        try:
-            target_location = models.Location.objects.get(pk=target_location_id)
-        except models.Location.DoesNotExist:
-            return Response({'error': "Target location not found"})
+        if is_sublocation:
+            start_travel_time = timezone.now()
+            travel_end_datetime = timezone.now()
+            target_location = models.SubLocation.objects.get(pk=target_location_id)
+            target_location_serialized = serializers.SubLocationSerializer(target_location).data
+            time = 1
+            locations = []
+
+        if not is_sublocation:
+            try:
+                target_location = models.Location.objects.get(pk=target_location_id)
+            except models.Location.DoesNotExist:
+                return Response({'error': "Target location not found"})
+            
+            adjacency_map = self.build_adjacency_map()
+            time, path = dijkstra(adjacency_map, (user_location.xCoordinate, user_location.yCoordinate), (target_location.xCoordinate, target_location.yCoordinate))
+
+            if time == float('inf'):
+                return Response({'error': "No path found"}, status=status.HTTP_400_BAD_REQUEST)
+
+            locations = []
+            for item in path:
+                locations.append(models.Location.get_location_by_coordinates(item[0], item[1]).name)
+
+            travel_end_datetime, start_travel_time = models.UserLocation.objects.get(user=user).update_travel_time(time)
+
+            target_location_serialized = serializers.LocationSerializer(target_location).data
         
-        adjacency_map = self.build_adjacency_map()
-        time, path = dijkstra(adjacency_map, (user_location.xCoordinate, user_location.yCoordinate), (target_location.xCoordinate, target_location.yCoordinate))
+            models.UserLocation.objects.get(user=user).update_user_location(target_location_id)
 
-        if time == float('inf'):
-            return Response({'error': "No path found"}, status=status.HTTP_400_BAD_REQUEST)
-
-        locations = []
-        for item in path:
-            locations.append(models.Location.get_location_by_coordinates(item[0], item[1]).name)
-
-        print(request.data.get("time"))
-        print(timezone.now())
-        travel_end_datetime, start_travel_time = models.UserLocation.objects.get(user=user).update_travel_time(time)
-
-        return Response({'travelTime': time, "path": locations, 'travelEndDatetime': travel_end_datetime, 'travelStartTime': start_travel_time})
+        return Response({
+            'travelTime': time, 
+            'path': locations, 
+            'targetLocation': target_location_serialized,
+            'travelEndDatetime': travel_end_datetime, 
+            'travelStartTime': start_travel_time})
     
     def build_adjacency_map(self):
         adjacency_map = {}
@@ -303,3 +320,32 @@ class TransactionViewSet(BaseViewSet):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         
         return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
+    
+
+class UserQuestViewSet(BaseViewSet):
+    serializer_class = serializers.UserQuestSerializer
+    queryset = models.UserQuest.objects.all()
+
+    # Add all UserQuestRequirement objects to the UserQuest object
+    def retrieve(self, request, pk=None):
+        user_quest = models.UserQuest.objects.get(pk=pk)
+        user_quest_requirements = models.UserQuestRequirement.objects.filter(userQuest=user_quest)
+        user_quest.userQuestRequirements = user_quest_requirements
+        serializer = self.get_serializer(user_quest)
+        return Response(serializer.data)
+
+
+    def get_queryset(self):
+        return models.UserQuest.objects.filter(user=self.request.user)
+    
+
+class DialogViewSet(BaseViewSet):
+    serializer_class = serializers.DialogSerializer
+    queryset = models.Dialog.objects.all()
+
+    def get_queryset(self):
+        # If npc query parameter is provided, return only starter dialog for that npc
+        npc = self.request.query_params.get('npc')
+        if npc:
+            return models.Dialog.objects.filter(npc=npc)
+        return models.Dialog.objects.all()
