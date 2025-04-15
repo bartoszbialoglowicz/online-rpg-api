@@ -36,13 +36,9 @@ CORS_ALLOWED_ORIGINS = [
     'http://127.0.0.1:3000',
     'http://localhost:3000',
     'https://bartoszbialoglowicz.github.io',
-<<<<<<< HEAD
     'http://192.168.100.20:3000',
     'https://frog02-20928.wykr.es',
     'http://frog02-20928.wykr.es',
-=======
-    'http://192.168.100.20:3000'
->>>>>>> a02bbe26fa0ec8e11fc8a9668439a5149116eddc
 ]
 # Application definition
 INSTALLED_APPS = [
