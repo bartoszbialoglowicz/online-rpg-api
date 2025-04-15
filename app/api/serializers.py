@@ -159,19 +159,6 @@ class EnemyLootSerializer(serializers.ModelSerializer):
         fields = ('item',)
 
 
-class LocationSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.Location
-        fields = '__all__'
-
-
-class UserLocationSerializer(serializers.ModelSerializer):
-    location = LocationSerializer(many=False, read_only=True)
-    class Meta:
-        model = models.UserLocation
-        fields = '__all__'
-
-
 class NPCSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.NPC
@@ -273,3 +260,111 @@ class TransactionSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         instance.save()
         return instance
+    
+class LocationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Location
+        fields = '__all__'
+
+class SubLocationSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = models.SubLocation
+        fields = '__all__'
+
+
+class LocationElementSerializer(serializers.ModelSerializer):
+    npc = NPCSerializer(read_only=True)
+    enemy = EnemySerializer(read_only=True)
+    item = ItemSerializer(read_only=True)
+    location_element = LocationSerializer(read_only=True)
+    sublocation_element = SubLocationSerializer(read_only=True)
+
+    class Meta:
+        model = models.LocationElement
+        fields = ("type", "position_x", "position_y", "npc", "enemy", "description", "item", "location_element", "sublocation_element")
+
+
+class SubLocationSerializer(serializers.ModelSerializer):
+    elements = LocationElementSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = models.SubLocation
+        fields = ("id", "name", "description", "imageUrl", "elements", "parent_location")
+
+
+class LocationSerializer(serializers.ModelSerializer):
+    elements = LocationElementSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = models.Location
+        fields = ('id', 'name', 'description', 'sublocations', 'elements', 'lvlRequired', 'imageUrl', 'region', 'xCoordinate', 'yCoordinate')
+
+
+class UserLocationSerializer(serializers.ModelSerializer):
+    location = LocationSerializer(many=False, read_only=True)
+    class Meta:
+        model = models.UserLocation
+        fields = '__all__'
+
+
+class TargetObjectRelatedField(serializers.RelatedField):
+    def to_representation(self, value):
+        if isinstance(value, models.Enemy):
+            return value.name
+        elif isinstance(value, models.Item):
+            return value.name
+        elif isinstance(value, models.Location):
+            return value.name
+        elif isinstance(value, models.NPC):
+            return value.name
+        raise Exception('Unexpected type of tagged object')
+
+class QuestRequirementSerializer(serializers.ModelSerializer):
+
+    #target_content_type = TargetObjectRelatedField(read_only=True)
+    target = TargetObjectRelatedField(read_only=True)
+
+    class Meta:
+        model = models.QuestRequirement
+        fields = ('type', 'amount', 'target',
+                  'target_content_type', 'target_object_id', 'position', 'path', 'is_last')
+
+
+class QuestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Quest
+        fields = '__all__'
+
+
+class UserQuestRequirementSerializer(serializers.ModelSerializer):
+    requirement = QuestRequirementSerializer(many=False, read_only=True)
+    class Meta:
+        model = models.UserQuestRequirement
+        fields = '__all__'
+
+
+class UserQuestSerializer(serializers.ModelSerializer):
+
+    quest = QuestSerializer(many=False, read_only=True)
+    requirements = UserQuestRequirementSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = models.UserQuest
+        fields = ('quest', 'requirements', 'progress')
+
+
+class DialogOptionSerializer(serializers.ModelSerializer):  
+    class Meta:
+        model = models.DialogOption
+        fields = ('id', 'dialog','content', 'next_dialog', 'effects')
+
+
+class DialogSerializer(serializers.ModelSerializer):
+
+    options = DialogOptionSerializer(many=True, read_only=True)
+    npc = NPCSerializer(read_only=True)
+
+    class Meta:
+        model = models.Dialog
+        fields = ('id', 'npc', 'content', 'event_id', 'options', 'starter')
