@@ -9,7 +9,7 @@ from api.routing import websocket_urlpatterns  # Import WebSocket URL patterns f
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('api.urls'))
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+]
 
 application = ProtocolTypeRouter({
     'websocket': URLRouter(websocket_urlpatterns)
