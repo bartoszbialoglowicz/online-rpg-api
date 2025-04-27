@@ -1,0 +1,1106 @@
+[
+    {
+        "model": "api.item",
+        "pk": 1,
+        "fields": {
+            "name": "miecz",
+            "itemType": "weapon",
+            "armor": 0,
+            "magicResist": 0,
+            "health": 0,
+            "damage": 3,
+            "criticalHitChance": "0.00",
+            "criticalHitDamage": "0.00",
+            "goldValue": 5,
+            "imageUrl": "images/euro-maczeta.png",
+            "rarity": "common",
+            "lvlRequired": 1
+        }
+    },
+    {
+        "model": "api.item",
+        "pk": 2,
+        "fields": {
+            "name": "Miecz2",
+            "itemType": "weapon",
+            "armor": 0,
+            "magicResist": 0,
+            "health": 0,
+            "damage": 14,
+            "criticalHitChance": "0.00",
+            "criticalHitDamage": "0.00",
+            "goldValue": 8,
+            "imageUrl": "images/her-miecz1.png",
+            "rarity": "common",
+            "lvlRequired": 1
+        }
+    },
+    {
+        "model": "api.item",
+        "pk": 3,
+        "fields": {
+            "name": "Test",
+            "itemType": "weapon",
+            "armor": 0,
+            "magicResist": 0,
+            "health": 0,
+            "damage": 2,
+            "criticalHitChance": "0.00",
+            "criticalHitDamage": "0.00",
+            "goldValue": 3,
+            "imageUrl": "images/dzik_miecz2.png",
+            "rarity": "common",
+            "lvlRequired": 1
+        }
+    },
+    {
+        "model": "api.item",
+        "pk": 4,
+        "fields": {
+            "name": "test_legendary",
+            "itemType": "weapon",
+            "armor": 0,
+            "magicResist": 0,
+            "health": 0,
+            "damage": 41,
+            "criticalHitChance": "0.00",
+            "criticalHitDamage": "0.00",
+            "goldValue": 0,
+            "imageUrl": "images/lic_1h-tanc-truta.png",
+            "rarity": "common",
+            "lvlRequired": 6
+        }
+    },
+    {
+        "model": "api.item",
+        "pk": 5,
+        "fields": {
+            "name": "Sztylet władcy",
+            "itemType": "weapon",
+            "armor": 0,
+            "magicResist": 0,
+            "health": 0,
+            "damage": 52,
+            "criticalHitChance": "0.00",
+            "criticalHitDamage": "0.00",
+            "goldValue": 1111,
+            "imageUrl": "images/steel_sword_green_il3rXLY.png",
+            "rarity": "mythic",
+            "lvlRequired": 1
+        }
+    },
+    {
+        "model": "api.item",
+        "pk": 6,
+        "fields": {
+            "name": "Kres",
+            "itemType": "weapon",
+            "armor": 0,
+            "magicResist": 0,
+            "health": 0,
+            "damage": 231,
+            "criticalHitChance": "0.00",
+            "criticalHitDamage": "0.00",
+            "goldValue": 200000,
+            "imageUrl": "images/steel_sword_red.png",
+            "rarity": "legendary",
+            "lvlRequired": 5
+        }
+    },
+    {
+        "model": "api.item",
+        "pk": 7,
+        "fields": {
+            "name": "Stalowy miecz",
+            "itemType": "weapon",
+            "armor": 0,
+            "magicResist": 0,
+            "health": 0,
+            "damage": 11,
+            "criticalHitChance": "0.00",
+            "criticalHitDamage": "0.00",
+            "goldValue": 0,
+            "imageUrl": "images/steel_sword2.png",
+            "rarity": "common",
+            "lvlRequired": 1
+        }
+    },
+    {
+        "model": "api.item",
+        "pk": 8,
+        "fields": {
+            "name": "Miecz z grobowca",
+            "itemType": "weapon",
+            "armor": 0,
+            "magicResist": 0,
+            "health": 0,
+            "damage": 19,
+            "criticalHitChance": "0.00",
+            "criticalHitDamage": "0.00",
+            "goldValue": 0,
+            "imageUrl": "images/steel_sword.png",
+            "rarity": "rare",
+            "lvlRequired": 1
+        }
+    },
+    {
+        "model": "api.item",
+        "pk": 9,
+        "fields": {
+            "name": "Hood",
+            "itemType": "helmet",
+            "armor": 4,
+            "magicResist": 0,
+            "health": 1,
+            "damage": 0,
+            "criticalHitChance": "0.00",
+            "criticalHitDamage": "0.00",
+            "goldValue": 9,
+            "imageUrl": "images/hood.png",
+            "rarity": "legendary",
+            "lvlRequired": 1
+        }
+    },
+    {
+        "model": "api.item",
+        "pk": 10,
+        "fields": {
+            "name": "Sandals",
+            "itemType": "boots",
+            "armor": 2,
+            "magicResist": 0,
+            "health": 0,
+            "damage": 0,
+            "criticalHitChance": "0.00",
+            "criticalHitDamage": "0.00",
+            "goldValue": 5,
+            "imageUrl": "images/sandals.png",
+            "rarity": "common",
+            "lvlRequired": 1
+        }
+    },
+    {
+        "model": "api.item",
+        "pk": 11,
+        "fields": {
+            "name": "Pas",
+            "itemType": "trousers",
+            "armor": 0,
+            "magicResist": 2,
+            "health": 0,
+            "damage": 0,
+            "criticalHitChance": "0.00",
+            "criticalHitDamage": "0.00",
+            "goldValue": 2,
+            "imageUrl": "images/toga.png",
+            "rarity": "common",
+            "lvlRequired": 1
+        }
+    },
+    {
+        "model": "api.item",
+        "pk": 12,
+        "fields": {
+            "name": "Zbroja",
+            "itemType": "armor",
+            "armor": 33,
+            "magicResist": 16,
+            "health": 18,
+            "damage": 0,
+            "criticalHitChance": "0.00",
+            "criticalHitDamage": "0.00",
+            "goldValue": 90,
+            "imageUrl": "images/chest.png",
+            "rarity": "mythic",
+            "lvlRequired": 1
+        }
+    },
+    {
+        "model": "api.collectableitem",
+        "pk": 1,
+        "fields": {
+            "name": "Item1",
+            "goldValue": 12
+        }
+    },
+    {
+        "model": "api.collectableitem",
+        "pk": 2,
+        "fields": {
+            "name": "Skóra",
+            "goldValue": 12
+        }
+    },
+    {
+        "model": "api.potion",
+        "pk": 1,
+        "fields": {
+            "name": "Potion 1",
+            "hpValue": 23,
+            "goldValue": 12
+        }
+    },
+    {
+        "model": "api.potion",
+        "pk": 2,
+        "fields": {
+            "name": "Potion2",
+            "hpValue": 123,
+            "goldValue": 1
+        }
+    },
+    {
+        "model": "api.region",
+        "pk": 1,
+        "fields": {
+            "name": "Test",
+            "description": "testowy"
+        }
+    },
+    {
+        "model": "api.region",
+        "pk": 2,
+        "fields": {
+            "name": "Gryszwald",
+            "description": "Gryszwald to surowy, północny, górzysty rejon. Zima trwa tutaj niemal zawsze a ziemia pokryta jest grubą warstwą śniegu. Gryszwald to miejsce mało przystępne, pełne skalistych przełęczy, stromych klifów i ukrytych wąwozów. Tutejsi mieszkańcy, hardy i niezłomny lud, nauczyli się przetrwać w tych ekstremalnych warunkach, żyjąc z polowania i wydobywania cennych minerałów z gór. Region ten słynie z surowej, dzikiej piękności oraz niebezpieczeństw czyhających na każdym kroku."
+        }
+    },
+    {
+        "model": "api.region",
+        "pk": 3,
+        "fields": {
+            "name": "Nirvet",
+            "description": "Nirvet to miejsce, w którym słońce zdaje się nie dochodzić do ziemi, a mgły nigdy nie ustępują na długo. Bagna, gęste lasy i grząska ziemia tworzą naturalne granice, które odstraszają obcych. Powietrze jest ciężkie, wilgotne, przesycone zapachem mokrej ziemi i gnijących liści. Każdy krok może być ostatnim – wśród błotnistych rozpadlin i ukrytych wśród drzew nor czają się stworzenia, które nie powinny istnieć.\r\n\r\nW Nirvecie znajduje się kilka wiosek – drewnianych, prostych, lecz wytrzymałych, tak jak ludzie, którzy w nich mieszkają. Rdzenni mieszkańcy Nirvetu to lud twardy, milczący, niechętny wobec obcych. W ich oczach widać coś więcej niż zmęczenie – widać strach, który od pokoleń nie pozwala im opuścić tego miejsca. Wiedzą, że las żyje. Że bagna oddychają. Że w mroku coś obserwuje.\r\n\r\nDrogi są tu rzadkie i zdradliwe, a nocą bezpieczniej jest nie wychodzić z domostw. Nirvet skrywa tajemnice, o których nikt nie mówi głośno. Tajemnice, które Eldric wkrótce odkryje – czy tego chce, czy nie."
+        }
+    },
+    {
+        "model": "api.region",
+        "pk": 4,
+        "fields": {
+            "name": "Południowe wybrzeże",
+            "description": "Vaelinth"
+        }
+    },
+    {
+        "model": "api.location",
+        "pk": 4,
+        "fields": {
+            "name": "Twierdza Lodowego Grzbietu",
+            "region": 2,
+            "lvlRequired": 1,
+            "description": "Położona wysoko w górach, Twierdza Lodowego Grzbietu to masywna, kamienna forteca wzniesiona na naturalnym urwisku. Jest siedzibą władyków Gryszwaldu, którzy od wieków sprawują władzę nad tymi dzikimi ziemiami. Twierdza chroni mieszkańców przed najeźdźcami, a jej mury są na tyle grube, że wytrzymują nawet najcięższe zimowe burze. Wewnątrz twierdzy mieści się sala tronowa, gdzie wiszą portrety dawnych władców, oraz głęboko ukryte katakumby, gdzie spoczywają ich ciała.",
+            "imageUrl": "images/twierdza_gryszwald.jpg",
+            "xCoordinate": 0,
+            "yCoordinate": 0
+        }
+    },
+    {
+        "model": "api.location",
+        "pk": 5,
+        "fields": {
+            "name": "Wioska Zimowód",
+            "region": 2,
+            "lvlRequired": 1,
+            "description": "Mała osada ukryta w dolinie otoczonej stromymi szczytami gór. Zimowód jest jedną z najzimniejszych osad w Gryszwaldzie, gdzie lód nigdy do końca nie topnieje. Mieszkańcy trudnią się hodowlą wytrzymałych kóz górskich oraz zbieraniem ziół, które rosną tylko na najwyższych, skalistych zboczach. Wioska znana jest również z gorzelni produkującej mocną wódkę, której składniki pochodzą z lokalnych ziół.",
+            "imageUrl": "images/wioska_gryszwald.jpg",
+            "xCoordinate": 0,
+            "yCoordinate": 2
+        }
+    },
+    {
+        "model": "api.location",
+        "pk": 6,
+        "fields": {
+            "name": "Przełęcz Mroźnego Wiatru",
+            "region": 2,
+            "lvlRequired": 1,
+            "description": "Górska przełęcz, przez którą wiedzie jedyna droga łącząca Gryszwald z resztą świata. Przez większość roku przełęcz jest zasypana śniegiem i lodem, a mroźne wiatry nieustannie wieją przez wąski korytarz skalny. Miejsce to jest niezwykle niebezpieczne, pełne osuwisk i zdradliwych zakrętów. Na przełęczy znajduje się kamienny krzyż upamiętniający wielu, którzy zginęli próbując przebyć tę drogę.",
+            "imageUrl": "images/przelecz_gryszwald.jpg",
+            "xCoordinate": 0,
+            "yCoordinate": 1
+        }
+    },
+    {
+        "model": "api.location",
+        "pk": 7,
+        "fields": {
+            "name": "Jezioro Czarnych Głębin",
+            "region": 2,
+            "lvlRequired": 1,
+            "description": "Głębokie, lodowate jezioro położone u stóp najwyższego szczytu w regionie, znanego jako Wierzchołek Lodowego Smoka. Woda w jeziorze jest czarna jak noc, a miejscowi wierzą, że na jego dnie kryją się potężne, pradawne istoty. Jezioro jest miejscem kultu i ofiar dla duchów gór, a jego okolice spowite są w mgłę przez większość roku. Latem, gdy lód nieco topnieje, śmiałkowie próbują łowić w jeziorze ryby, lecz tylko nielicznym udaje się wrócić.",
+            "imageUrl": "images/jezioro_gryszwald.jpg",
+            "xCoordinate": 1,
+            "yCoordinate": 2
+        }
+    },
+    {
+        "model": "api.location",
+        "pk": 8,
+        "fields": {
+            "name": "Kopalnie Żelaznego Kruszca",
+            "region": 2,
+            "lvlRequired": 3,
+            "description": "Ukryte głęboko w górskich tunelach,  kopalnie są źródłem cennego żelaza i metali, które pozyskiwane są przez górników z Gryszwaldu.",
+            "imageUrl": "images/kopalnie_gryszwald.jpg",
+            "xCoordinate": 1,
+            "yCoordinate": 0
+        }
+    },
+    {
+        "model": "api.location",
+        "pk": 9,
+        "fields": {
+            "name": "Krypta",
+            "region": 3,
+            "lvlRequired": 1,
+            "description": "Głęboko pod ziemią, gdzie światło nigdy nie dociera, rozciąga się Krypta Zapomnianych – miejsce, do którego trafiają ci, których świat chciał wymazać z istnienia. Nie jest to zwykły grobowiec. To otchłań przepełniona mrokiem, w której ściany szepczą głosami dawno zmarłych. Kamienne korytarze wiją się niczym wnętrzności umierającego giganta, a zimne powietrze niesie zapach pleśni i rozkładu.",
+            "imageUrl": "images/krypta.jpg",
+            "xCoordinate": 0,
+            "yCoordinate": 20
+        }
+    },
+    {
+        "model": "api.location",
+        "pk": 10,
+        "fields": {
+            "name": "Pogórza",
+            "region": 2,
+            "lvlRequired": 1,
+            "description": "Pogórza",
+            "imageUrl": "",
+            "xCoordinate": 20,
+            "yCoordinate": 0
+        }
+    },
+    {
+        "model": "api.location",
+        "pk": 11,
+        "fields": {
+            "name": "Vaelinth",
+            "region": 4,
+            "lvlRequired": 1,
+            "description": "Vaelinth, średniej wielkości miasto, rozciąga się wzdłuż brzegów rzeki Virenne, a jego wspaniałość widać z daleka. Z wysokiego punktu widokowego miasto rozwija się warstwami — u góry Górny Vaelinth lśni wyrafinowaniem, podczas gdy poniżej Dolne Miasto rozciąga się w ubóstwie.",
+            "imageUrl": "images/Vaelinth.jpg",
+            "xCoordinate": 4,
+            "yCoordinate": 29
+        }
+    },
+    {
+        "model": "api.sublocation",
+        "pk": 1,
+        "fields": {
+            "name": "Vaelinth - dolne miasto",
+            "description": "Po prawej stronie budynki Dolnego Miasta pochylają się, ich fasady są popękane i zwietrzałe. Zniszczone drewniane belki wystają z kruszącego się kamienia, a wąskie okna migoczą słabym blaskiem świec. Złamany znak skrzypi na wietrze, jego farba dawno wyblakła.",
+            "parent_location": 11,
+            "imageUrl": "images/dolne_miasto_vaelinth.jpg"
+        }
+    },
+    {
+        "model": "api.locationelement",
+        "pk": 1,
+        "fields": {
+            "location": 5,
+            "sublocation": null,
+            "type": "enemy",
+            "npc": null,
+            "enemy": 10,
+            "item": null,
+            "location_element": null,
+            "sublocation_element": null,
+            "position_x": 80,
+            "position_y": 80,
+            "description": ""
+        }
+    },
+    {
+        "model": "api.locationelement",
+        "pk": 2,
+        "fields": {
+            "location": 5,
+            "sublocation": null,
+            "type": "npc",
+            "npc": 1,
+            "enemy": null,
+            "item": null,
+            "location_element": null,
+            "sublocation_element": null,
+            "position_x": 58,
+            "position_y": 85,
+            "description": ""
+        }
+    },
+    {
+        "model": "api.locationelement",
+        "pk": 3,
+        "fields": {
+            "location": 5,
+            "sublocation": null,
+            "type": "location",
+            "npc": null,
+            "enemy": null,
+            "item": null,
+            "location_element": 6,
+            "sublocation_element": null,
+            "position_x": 47,
+            "position_y": 48,
+            "description": ""
+        }
+    },
+    {
+        "model": "api.locationelement",
+        "pk": 4,
+        "fields": {
+            "location": 6,
+            "sublocation": null,
+            "type": "location",
+            "npc": null,
+            "enemy": null,
+            "item": null,
+            "location_element": 5,
+            "sublocation_element": null,
+            "position_x": 62,
+            "position_y": 90,
+            "description": ""
+        }
+    },
+    {
+        "model": "api.locationelement",
+        "pk": 5,
+        "fields": {
+            "location": 11,
+            "sublocation": null,
+            "type": "location",
+            "npc": null,
+            "enemy": null,
+            "item": null,
+            "location_element": null,
+            "sublocation_element": 1,
+            "position_x": 72,
+            "position_y": 90,
+            "description": ""
+        }
+    },
+    {
+        "model": "api.locationelement",
+        "pk": 6,
+        "fields": {
+            "location": null,
+            "sublocation": 1,
+            "type": "location",
+            "npc": null,
+            "enemy": null,
+            "item": null,
+            "location_element": 11,
+            "sublocation_element": null,
+            "position_x": 75,
+            "position_y": 90,
+            "description": ""
+        }
+    },
+    {
+        "model": "api.locationelement",
+        "pk": 7,
+        "fields": {
+            "location": null,
+            "sublocation": 1,
+            "type": "npc",
+            "npc": 3,
+            "enemy": null,
+            "item": null,
+            "location_element": null,
+            "sublocation_element": null,
+            "position_x": 77,
+            "position_y": 61,
+            "description": ""
+        }
+    },
+    {
+        "model": "api.enemy",
+        "pk": 5,
+        "fields": {
+            "name": "Kael Ardyn",
+            "health": 3000,
+            "armor": 100,
+            "magicResist": 124,
+            "damage": 674,
+            "criticalHitChance": "0.15",
+            "criticalHitDamage": "1.80",
+            "lvl": 40,
+            "exp": 8000,
+            "imgSrc": "images/kael_ardyn_N5Y3Ydh.jpg",
+            "location": 6
+        }
+    },
+    {
+        "model": "api.enemy",
+        "pk": 6,
+        "fields": {
+            "name": "Till Veyrath",
+            "health": 1200,
+            "armor": 124,
+            "magicResist": 56,
+            "damage": 400,
+            "criticalHitChance": "0.05",
+            "criticalHitDamage": "1.50",
+            "lvl": 38,
+            "exp": 2000,
+            "imgSrc": "images/veyrath.jpg",
+            "location": 6
+        }
+    },
+    {
+        "model": "api.enemy",
+        "pk": 7,
+        "fields": {
+            "name": "Sir Aldior Velhar",
+            "health": 900,
+            "armor": 240,
+            "magicResist": 321,
+            "damage": 124,
+            "criticalHitChance": "0.05",
+            "criticalHitDamage": "2.00",
+            "lvl": 82,
+            "exp": 20000,
+            "imgSrc": "images/ser_aldior_velhar.jpg",
+            "location": 6
+        }
+    },
+    {
+        "model": "api.enemy",
+        "pk": 8,
+        "fields": {
+            "name": "Liria",
+            "health": 2912,
+            "armor": 123,
+            "magicResist": 88,
+            "damage": 200,
+            "criticalHitChance": "0.25",
+            "criticalHitDamage": "1.40",
+            "lvl": 29,
+            "exp": 1000,
+            "imgSrc": "images/liria.jpg",
+            "location": 6
+        }
+    },
+    {
+        "model": "api.enemy",
+        "pk": 9,
+        "fields": {
+            "name": "Złodziej",
+            "health": 90,
+            "armor": 12,
+            "magicResist": 5,
+            "damage": 29,
+            "criticalHitChance": "0.05",
+            "criticalHitDamage": "1.50",
+            "lvl": 1,
+            "exp": 56,
+            "imgSrc": "images/thief.jpg",
+            "location": 6
+        }
+    },
+    {
+        "model": "api.enemy",
+        "pk": 10,
+        "fields": {
+            "name": "Tuman z karczmy",
+            "health": 240,
+            "armor": 24,
+            "magicResist": 12,
+            "damage": 44,
+            "criticalHitChance": "0.05",
+            "criticalHitDamage": "2.20",
+            "lvl": 5,
+            "exp": 190,
+            "imgSrc": "images/osilek.jpg",
+            "location": 6
+        }
+    },
+    {
+        "model": "api.enemy",
+        "pk": 11,
+        "fields": {
+            "name": "Leśny bandyta",
+            "health": 122,
+            "armor": 12,
+            "magicResist": 12,
+            "damage": 65,
+            "criticalHitChance": "0.05",
+            "criticalHitDamage": "1.50",
+            "lvl": 3,
+            "exp": 34,
+            "imgSrc": "images/bandit.jpg",
+            "location": 6
+        }
+    },
+    {
+        "model": "api.enemy",
+        "pk": 12,
+        "fields": {
+            "name": "Kościuch",
+            "health": 450,
+            "armor": 56,
+            "magicResist": 111,
+            "damage": 140,
+            "criticalHitChance": "0.05",
+            "criticalHitDamage": "1.50",
+            "lvl": 16,
+            "exp": 455,
+            "imgSrc": "images/szkielet_mag.jpg",
+            "location": 6
+        }
+    },
+    {
+        "model": "api.enemy",
+        "pk": 13,
+        "fields": {
+            "name": "Kael Ardyn Demon",
+            "health": 20000,
+            "armor": 1000,
+            "magicResist": 1000,
+            "damage": 2000,
+            "criticalHitChance": "0.20",
+            "criticalHitDamage": "3.60",
+            "lvl": 124,
+            "exp": 1000000,
+            "imgSrc": "images/demon_ardyn.jpg",
+            "location": 6
+        }
+    },
+    {
+        "model": "api.enemy",
+        "pk": 14,
+        "fields": {
+            "name": "Khalto",
+            "health": 999,
+            "armor": 432,
+            "magicResist": 654,
+            "damage": 1000,
+            "criticalHitChance": "0.22",
+            "criticalHitDamage": "2.00",
+            "lvl": 54,
+            "exp": 34000,
+            "imgSrc": "images/khalto.jpg",
+            "location": 5
+        }
+    },
+    {
+        "model": "api.enemy",
+        "pk": 15,
+        "fields": {
+            "name": "Zathariel",
+            "health": 1300,
+            "armor": 500,
+            "magicResist": 500,
+            "damage": 500,
+            "criticalHitChance": "0.05",
+            "criticalHitDamage": "4.00",
+            "lvl": 83,
+            "exp": 12000,
+            "imgSrc": "images/zathariel.jpg",
+            "location": 6
+        }
+    },
+    {
+        "model": "api.enemy",
+        "pk": 16,
+        "fields": {
+            "name": "Irys",
+            "health": 767,
+            "armor": 233,
+            "magicResist": 333,
+            "damage": 543,
+            "criticalHitChance": "0.15",
+            "criticalHitDamage": "1.80",
+            "lvl": 44,
+            "exp": 1300,
+            "imgSrc": "images/irys.jpg",
+            "location": 6
+        }
+    },
+    {
+        "model": "api.npc",
+        "pk": 1,
+        "fields": {
+            "name": "Kowal Ben",
+            "location": 5,
+            "imageUrl": "bald.png"
+        }
+    },
+    {
+        "model": "api.npc",
+        "pk": 2,
+        "fields": {
+            "name": "Test",
+            "location": 9,
+            "imageUrl": "khalto.jpg"
+        }
+    },
+    {
+        "model": "api.npc",
+        "pk": 3,
+        "fields": {
+            "name": "Yonet",
+            "location": 11,
+            "imageUrl": "yonet.png"
+        }
+    },
+    {
+        "model": "api.store",
+        "pk": 1,
+        "fields": {
+            "location": 5,
+            "name": "Kuźnia",
+            "type": "weapon",
+            "npc": 1
+        }
+    },
+    {
+        "model": "api.storeitem",
+        "pk": 4,
+        "fields": {
+            "store": 1,
+            "item": 1,
+            "price": 12
+        }
+    },
+    {
+        "model": "api.storeitem",
+        "pk": 5,
+        "fields": {
+            "store": 1,
+            "item": 6,
+            "price": 1222
+        }
+    },
+    {
+        "model": "api.dialog",
+        "pk": 1,
+        "fields": {
+            "npc": 1,
+            "content": "Starszy facet przypatruje się Tobie z lekkim zdziwieniem, brwi unoszą mu się lekko w górę. Nic dziwnego wyglądasz jak siedem nieszczęść.\r\n- Poszukiwacz przygód?",
+            "event_id": "1",
+            "starter": true
+        }
+    },
+    {
+        "model": "api.dialog",
+        "pk": 2,
+        "fields": {
+            "npc": 1,
+            "content": "Lepiej powiedz mi co tutaj robisz.. Chociaż patrząc na Ciebie, wiem jedno. Wpieprzyłeś się w niezłe bagno chłopcze.",
+            "event_id": "1",
+            "starter": false
+        }
+    },
+    {
+        "model": "api.dialog",
+        "pk": 3,
+        "fields": {
+            "npc": 2,
+            "content": "Testowy dialog",
+            "event_id": "2",
+            "starter": false
+        }
+    },
+    {
+        "model": "api.dialog",
+        "pk": 4,
+        "fields": {
+            "npc": 3,
+            "content": "Witaj Eldricu!",
+            "event_id": null,
+            "starter": true
+        }
+    },
+    {
+        "model": "api.dialog",
+        "pk": 5,
+        "fields": {
+            "npc": 3,
+            "content": "Yonet (śmiejąc się, nie odrywając wzroku od sieci): „A ciebie jeszcze nikt nie zadźgał w ciemnej uliczce. Świat pełen cudów.”",
+            "event_id": null,
+            "starter": false
+        }
+    },
+    {
+        "model": "api.dialog",
+        "pk": 6,
+        "fields": {
+            "npc": 3,
+            "content": "„Zawsze coś się znajdzie. Ryby? Czyste wino? Albo coś, co się szybciej psuje?”",
+            "event_id": null,
+            "starter": false
+        }
+    },
+    {
+        "model": "api.dialog",
+        "pk": 7,
+        "fields": {
+            "npc": 3,
+            "content": "Yonet (parska śmiechem): „O tak, pamiętam. Ty, w połowie topiący się w tym samym mule, z którego miałeś mnie wyciągnąć.”",
+            "event_id": null,
+            "starter": false
+        }
+    },
+    {
+        "model": "api.dialog",
+        "pk": 8,
+        "fields": {
+            "npc": 3,
+            "content": "„Powiedzmy, że los się zlitował. Co cię tu sprowadza?”",
+            "event_id": null,
+            "starter": false
+        }
+    },
+    {
+        "model": "api.dialog",
+        "pk": 9,
+        "fields": {
+            "npc": 3,
+            "content": "Yonet (spogląda na Eldrica uważnie): „Coś konkretnego?”",
+            "event_id": null,
+            "starter": false
+        }
+    },
+    {
+        "model": "api.dialog",
+        "pk": 11,
+        "fields": {
+            "npc": 3,
+            "content": "Yonet (spogląda przez ramię, po czym pochyla się bliżej): „Nie wiem, czy akurat o ciebie, ale… wczoraj przy nabrzeżu kręcił się ktoś, kto nie wyglądał na tutejszego. Czarna opończa, ręka wiecznie przy pasie, jakby czekał, aż ktoś podejdzie za blisko. Rozmawiał z ludźmi, ale nikt nie chce powiedzieć, o czym.”",
+            "event_id": null,
+            "starter": false
+        }
+    },
+    {
+        "model": "api.dialogoption",
+        "pk": 1,
+        "fields": {
+            "dialog": 1,
+            "content": "Japierdole.. gdzie tutaj jest jakaś karczma?",
+            "next_dialog": 2,
+            "effects": null
+        }
+    },
+    {
+        "model": "api.dialogoption",
+        "pk": 2,
+        "fields": {
+            "dialog": 1,
+            "content": "Szukam noclegu. Muszę dojść do siebie.",
+            "next_dialog": 2,
+            "effects": null
+        }
+    },
+    {
+        "model": "api.dialogoption",
+        "pk": 3,
+        "fields": {
+            "dialog": 2,
+            "content": "Nie mam zbytnio czasu",
+            "next_dialog": null,
+            "effects": {
+                "exit": true
+            }
+        }
+    },
+    {
+        "model": "api.dialogoption",
+        "pk": 4,
+        "fields": {
+            "dialog": 4,
+            "content": "Yonet. Widzę, że woda cię jeszcze nie pochłonęła.",
+            "next_dialog": 5,
+            "effects": null
+        }
+    },
+    {
+        "model": "api.dialogoption",
+        "pk": 5,
+        "fields": {
+            "dialog": 5,
+            "content": "Może kiedyś, ale nie dziś. Masz coś dla mnie?",
+            "next_dialog": 6,
+            "effects": null
+        }
+    },
+    {
+        "model": "api.dialogoption",
+        "pk": 6,
+        "fields": {
+            "dialog": 5,
+            "content": "Chyba starzejesz się szybciej niż myślałem, bo już zapominasz, kto kogo ratował ostatnim razem.",
+            "next_dialog": 7,
+            "effects": null
+        }
+    },
+    {
+        "model": "api.dialogoption",
+        "pk": 7,
+        "fields": {
+            "dialog": 5,
+            "content": "Nie jestem tu dla pogawędek. Słyszałeś coś ciekawego?",
+            "next_dialog": 9,
+            "effects": null
+        }
+    },
+    {
+        "model": "api.dialogoption",
+        "pk": 8,
+        "fields": {
+            "dialog": 6,
+            "content": "Zgarnę coś na drogę.",
+            "next_dialog": null,
+            "effects": null
+        }
+    },
+    {
+        "model": "api.dialogoption",
+        "pk": 9,
+        "fields": {
+            "dialog": 6,
+            "content": "Potrzebuję informacji.",
+            "next_dialog": 9,
+            "effects": null
+        }
+    },
+    {
+        "model": "api.dialogoption",
+        "pk": 10,
+        "fields": {
+            "dialog": 7,
+            "content": "Ale wyciągnałem, prawda?",
+            "next_dialog": 8,
+            "effects": null
+        }
+    },
+    {
+        "model": "api.dialogoption",
+        "pk": 11,
+        "fields": {
+            "dialog": 9,
+            "content": "„Coś się ostatnio działo? Ktoś pytał o mnie?”",
+            "next_dialog": 11,
+            "effects": null
+        }
+    },
+    {
+        "model": "api.dialogoption",
+        "pk": 12,
+        "fields": {
+            "dialog": 11,
+            "content": "Ciekawe. Wiesz coś więcej?",
+            "next_dialog": null,
+            "effects": null
+        }
+    },
+    {
+        "model": "api.quest",
+        "pk": 1,
+        "fields": {
+            "title": "Gdzie ja jestem?",
+            "type": "main",
+            "description": "Eldric budzi się w starym grobowcu, leżąc wśród rozkopanych, gnijących zwłok. W powietrzu czuć wilgoć i stęchliznę, a jedyne światło to blade płomyki niebieskawego ognia, migoczące na ścianach. Nie pamięta, kim jest, ale czuje, że coś jest nie tak – jego ciało jest obolałe, zimne, jakby niedawno… umarł?\r\n\r\nZaraz obok, na stercie kości, siedzi stara wiedźma o oczach jak czarne otchłanie. Patrzy na Eldrica z niepokojącym uśmiechem.",
+            "gold_reward": 0,
+            "item_reward": null,
+            "exp_reward": 15
+        }
+    },
+    {
+        "model": "api.quest",
+        "pk": 2,
+        "fields": {
+            "title": "Człowiek zagadka",
+            "type": "side",
+            "description": "Na mojej drodze napotkałem człowieka, który w swojej chacie na odludziu przeprowadza ciekawe eksperymenty na miksturach. Może uda mi się na tym skorzystać?",
+            "gold_reward": 0,
+            "item_reward": 3,
+            "exp_reward": 122
+        }
+    },
+    {
+        "model": "api.questrequirement",
+        "pk": 1,
+        "fields": {
+            "quest": 1,
+            "type": "explore",
+            "amount": 0,
+            "target_content_type": 13,
+            "target_object_id": 4,
+            "position": 1,
+            "path": 1,
+            "is_last": false
+        }
+    },
+    {
+        "model": "api.questrequirement",
+        "pk": 2,
+        "fields": {
+            "quest": 1,
+            "type": "kill",
+            "amount": 2,
+            "target_content_type": 11,
+            "target_object_id": 6,
+            "position": 1,
+            "path": 1,
+            "is_last": false
+        }
+    },
+    {
+        "model": "api.questrequirement",
+        "pk": 3,
+        "fields": {
+            "quest": 2,
+            "type": "collect",
+            "amount": 2,
+            "target_content_type": 12,
+            "target_object_id": 5,
+            "position": 1,
+            "path": 1,
+            "is_last": false
+        }
+    },
+    {
+        "model": "api.questrequirement",
+        "pk": 4,
+        "fields": {
+            "quest": 2,
+            "type": "explore",
+            "amount": 0,
+            "target_content_type": 13,
+            "target_object_id": 7,
+            "position": 1,
+            "path": 1,
+            "is_last": false
+        }
+    },
+    {
+        "model": "api.questrequirement",
+        "pk": 5,
+        "fields": {
+            "quest": 2,
+            "type": "kill",
+            "amount": 1,
+            "target_content_type": 11,
+            "target_object_id": 11,
+            "position": 2,
+            "path": 1,
+            "is_last": true
+        }
+    },
+    {
+        "model": "api.questrequirement",
+        "pk": 6,
+        "fields": {
+            "quest": 2,
+            "type": "talk",
+            "amount": null,
+            "target_content_type": 31,
+            "target_object_id": 1,
+            "position": 1,
+            "path": 1,
+            "is_last": false
+        }
+    }
+]
