@@ -137,7 +137,7 @@ class Resources(models.Model):
         self.lvl = UserLvl.objects.get(lvl=current_lvl)
         self.exp = current_exp
 
-        self.save()
+        self.save(using=self._db)
 
 
     @receiver(post_save, sender=get_user_model())
@@ -230,7 +230,7 @@ class UserItems(models.Model):
                 Character.objects.get(user=self.user).remove_equipped_item_stats(self.item.itemType)
                 item = CharacterItem.objects.get(character=self.user.character, slot=self.item.itemType)
                 item.item = None
-                item.save()
+                item.save(using=self._db)
         return super().delete()
     
     def add_item(item_id, user_pk):
@@ -336,12 +336,13 @@ class Location(models.Model):
     def __str__(self):
         return (f'[{self.region}] {self.name}')
     
+    @staticmethod
     def get_or_create_default_location():
         try:
-            location = Location.objects.get(name="Przełęcz Mroźnego Wiatru")
-        except:
-            location = Location.objects.create(name="Default", region=Region.create_default_region(), lvlRequired=1, description="test")
-        return location
+            return Location.objects.get(name="Przełęcz Mroźnego Wiatru")
+        except Location.DoesNotExist:
+            return None
+
     
     def get_neighboring_locations(location):
         return Location.objects.exclude(pk=location.pk).filter(
@@ -414,7 +415,7 @@ class Enemy(models.Model):
     lvl = models.IntegerField()
     exp = models.IntegerField(default=10)
     imgSrc = models.ImageField(blank=True, null=True, upload_to=upload_to)
-    location = models.ForeignKey(Location, on_delete=models.CASCADE, default=Location.get_or_create_default_location().pk)
+    location = models.ForeignKey(Location, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         return self.name
@@ -505,7 +506,11 @@ class UserLocation(models.Model):
     @receiver(post_save, sender=get_user_model())
     def create_user_location(sender, instance, created, **kwargs):
         if created:
-            UserLocation.objects.create(user=instance, location=Location.get_or_create_default_location())
+            default_location = Location.get_or_create_default_location()
+            if default_location:
+                UserLocation.objects.create(user=instance, location=default_location)
+            else:
+                print("[WARN] Default location not found. UserLocation was not created.")
 
     def can_move(self):
         return timezone.now() >= self.travelTime
@@ -513,7 +518,7 @@ class UserLocation(models.Model):
     def update_travel_time(self, seconds):
         self.travelTime = timezone.now() + timedelta(seconds=seconds)
         self.startTravelTime = timezone.now()
-        self.save()
+        self.save(using=self._db)
         return self.travelTime, self.startTravelTime
     
     def update_user_location(self, location_id):
@@ -523,7 +528,7 @@ class UserLocation(models.Model):
             raise ValidationError({'location': "User can not travel to location that does not exist!"})
         
         self.location = target_location
-        self.save()
+        self.save(using=self._db)
         return self.location
             
 
