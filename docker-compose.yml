@@ -1,0 +1,47 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_DB: online_rpg
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - backend
+
+  web:
+    build: .
+    command: >
+      sh -c "python manage.py makemigrations api &&
+             python manage.py migrate api &&
+             python manage.py migrate &&
+             python manage.py collectstatic --noinput &&
+             daphne -b 0.0.0.0 -p 8000 app.asgi:application"
+    volumes:
+      - ./app:/app
+      - ./mediafiles:/mediafiles
+      - ./app/staticfiles:/app/staticfiles
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      DEBUG: 1
+      DJANGO_SECRET_KEY: changeme
+      DB_NAME: online_rpg
+      DB_USER: user
+      DB_PASSWORD: password
+      DB_HOST: db
+      DB_PORT: 5432
+    networks:
+      - backend
+
+volumes:
+  postgres_data:
+
+networks:
+  backend:
