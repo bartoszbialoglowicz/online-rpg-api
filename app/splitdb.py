@@ -5,6 +5,7 @@ with open('db.json', 'r', encoding='utf-8') as f:
 
 users = []
 app_data = []
+locations = []
 
 # Modele przestrzeni użytkownika, które pomijamy w app_data
 user_related_models = [
@@ -35,6 +36,8 @@ admin_related_models = [
 for obj in data:
     if obj["model"] == "api.customuser":
         users.append(obj)
+    elif obj["model"] == "api.location":
+        locations.append(obj)
     elif obj["model"] not in user_related_models and obj["model"] not in admin_related_models:
         app_data.append(obj)
 
@@ -45,5 +48,8 @@ with open('users.json', 'w', encoding='utf-8') as f:
 # Zapisz dane aplikacji
 with open('app_data.json', 'w', encoding='utf-8') as f:
     json.dump(app_data, f, indent=4, ensure_ascii=False)
+
+with open('locations.json', 'w', encoding='utf-8') as f:
+    json.dump(locations, f, indent=4, ensure_ascii=False)
 
 print("✅ Podzielono dane na users.json i app_data.json!")
