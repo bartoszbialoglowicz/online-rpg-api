@@ -137,7 +137,7 @@ class Resources(models.Model):
         self.lvl = UserLvl.objects.get(lvl=current_lvl)
         self.exp = current_exp
 
-        self.save(using=self._db)
+        self.save()
 
 
     @receiver(post_save, sender=get_user_model())
@@ -230,7 +230,7 @@ class UserItems(models.Model):
                 Character.objects.get(user=self.user).remove_equipped_item_stats(self.item.itemType)
                 item = CharacterItem.objects.get(character=self.user.character, slot=self.item.itemType)
                 item.item = None
-                item.save(using=self._db)
+                item.save()
         return super().delete()
     
     def add_item(item_id, user_pk):
@@ -496,8 +496,8 @@ class LocationEnemy(models.Model):
 class UserLocation(models.Model):
     location = models.ForeignKey(Location, on_delete=models.SET_DEFAULT, default=1)
     user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE)
-    travelTime = models.DateTimeField(default=timezone.now())
-    startTravelTime = models.DateTimeField(default=timezone.now())
+    travelTime = models.DateTimeField(default=timezone.now)
+    startTravelTime = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return (f'{self.user} - {self.location}')
@@ -518,7 +518,7 @@ class UserLocation(models.Model):
     def update_travel_time(self, seconds):
         self.travelTime = timezone.now() + timedelta(seconds=seconds)
         self.startTravelTime = timezone.now()
-        self.save(using=self._db)
+        self.save()
         return self.travelTime, self.startTravelTime
     
     def update_user_location(self, location_id):
@@ -528,7 +528,7 @@ class UserLocation(models.Model):
             raise ValidationError({'location': "User can not travel to location that does not exist!"})
         
         self.location = target_location
-        self.save(using=self._db)
+        self.save()
         return self.location
             
 

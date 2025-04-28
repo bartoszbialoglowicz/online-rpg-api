@@ -41,7 +41,7 @@ admin_related_models = [
 for obj in data:
     if obj["model"] == "api.customuser":
         users.append(obj)
-    elif obj["model"] == "api.location":
+    elif obj["model"] in location_models:
         locations.append(obj)
     elif obj["model"] not in user_related_models and obj["model"] not in admin_related_models:
         app_data.append(obj)
