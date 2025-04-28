@@ -25,6 +25,11 @@ user_related_models = [
     "authtoken.token"
 ]
 
+location_models = [
+    "api.region",
+    "api.location",
+]
+
 # Modele adminowe, których nie potrzebujemy
 admin_related_models = [
     "admin.logentry",
